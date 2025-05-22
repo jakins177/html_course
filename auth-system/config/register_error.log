@@ -1,0 +1,1 @@
+2025-05-20 23:00:35 - Exception: SQLSTATE[42000]: Syntax error or access violation: 1142 SELECT command denied to user 'srn_user'@'localhost' for table 'users'

@@ -1,0 +1,31 @@
+/* Dark mode styles */
+html.dark {
+    filter: invert(1) hue-rotate(180deg);
+    background-color: #121212 !important;
+}
+html.dark img, html.dark video {
+    filter: invert(1) hue-rotate(180deg) !important;
+}
+/* Dark mode toggle button positioning */
+#dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10000;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+#dark-mode-toggle:hover {
+    opacity: 1;
+}
+html.dark #dark-mode-toggle {
+    background-color: #e74c3c;
+}

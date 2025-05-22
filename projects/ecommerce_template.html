@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Product Page Template</title>
+    <style>
+        /* Basic CSS to get you started - feel free to customize */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        
+        .product-gallery {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 40px;
+        }
+        
+        .product-details {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+            }
+            
+            .product-gallery {
+                margin-right: 0;
+                margin-bottom: 30px;
+            }
+        }
+        
+        /* Add your custom styles below */
+        
+    </style>
+<link rel="stylesheet" href="/assets/darkmode.css">
+<script defer src="/assets/darkmode.js"></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <!-- 
+            TODO: Create a header with:
+            - Store logo
+            - Navigation menu with categories
+            - Search bar
+            - Cart icon with item count
+            - User account menu
+            - Make it responsive for mobile devices
+            -->
+        </div>
+    </header>
+    
+    <!-- Breadcrumb Navigation -->
+    <div class="container">
+        <!-- 
+        TODO: Create breadcrumb navigation showing:
+        - Home > Category > Subcategory > Product
+        -->
+    </div>
+    
+    <!-- Product Section -->
+    <div class="container product-container">
+        <!-- Product Gallery -->
+        <div class="product-gallery">
+            <!-- 
+            TODO: Create a product gallery with:
+            - Main product image
+            - Thumbnail images that can be clicked to change the main image
+            - Image zoom functionality
+            - Consider adding a product video
+            -->
+        </div>
+        
+        <!-- Product Details -->
+        <div class="product-details">
+            <!-- 
+            TODO: Create product details with:
+            - Product name (h1)
+            - Product rating (stars)
+            - Product price (with any discounts)
+            - Short description
+            - Key features list
+            - Product options (size, color, etc.)
+            - Quantity selector
+            - Add to cart button
+            - Wishlist button
+            - Share buttons
+            
+            IMPORTANT: Implement structured data using Microdata or JSON-LD
+            for the product information (name, price, rating, etc.)
+            -->
+        </div>
+    </div>
+    
+    <!-- Product Information Tabs -->
+    <div class="container">
+        <!-- 
+        TODO: Create tabbed content with:
+        - Description tab
+        - Specifications tab
+        - Reviews tab
+        - Shipping & Returns tab
+        
+        Each tab should have appropriate content and structure
+        -->
+    </div>
+    
+    <!-- Reviews Section -->
+    <div class="container">
+        <!-- 
+        TODO: Create a reviews section with:
+        - Overall rating summary
+        - List of customer reviews with:
+          - Reviewer name
+          - Rating
+          - Date
+          - Review text
+          - Helpful/Not helpful buttons
+        - Review submission form
+        -->
+    </div>
+    
+    <!-- Related Products -->
+    <div class="container">
+        <!-- 
+        TODO: Create a related products section with:
+        - Heading
+        - Grid of related product cards
+        - Each card should have:
+          - Product image
+          - Product name
+          - Price
+          - Rating
+          - Add to cart button
+        -->
+    </div>
+    
+    <!-- Recently Viewed Products -->
+    <div class="container">
+        <!-- 
+        TODO: Create a recently viewed products section similar to related products
+        -->
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <!-- 
+            TODO: Create a footer with:
+            - Store information
+            - Navigation links
+            - Newsletter signup
+            - Social media links
+            - Payment methods icons
+            - Copyright information
+            - Privacy policy and terms links
+            -->
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        // TODO: Add JavaScript for:
+        // - Image gallery functionality
+        // - Quantity selector
+        // - Tab switching
+        // - Review submission
+        // - Add to cart functionality
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Your code here
+            
+            // Example of JSON-LD structured data for product
+            const productData = {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": "Product Name",
+                "image": "https://example.com/product-image.jpg",
+                "description": "Product description goes here.",
+                "brand": {
+                    "@type": "Brand",
+                    "name": "Brand Name"
+                },
+                "offers": {
+                    "@type": "Offer",
+                    "url": "https://example.com/product",
+                    "priceCurrency": "USD",
+                    "price": "49.99",
+                    "availability": "https://schema.org/InStock"
+                },
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.5",
+                    "reviewCount": "89"
+                }
+            };
+            
+            // Create script element for JSON-LD
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.text = JSON.stringify(productData);
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
