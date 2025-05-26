@@ -51,7 +51,7 @@
 
   <p style="text-align:center; margin-top: 1em;">
     Don't have an account?
-    <a href="register.html" style="color: #3498db; text-decoration: none; font-weight: bold;">
+    <a href="frt_register.php" style="color: #3498db; text-decoration: none; font-weight: bold;">
       Register here
     </a>
   </p>
