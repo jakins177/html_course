@@ -413,10 +413,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='01_introduction.html'">Previous Lesson: Introduction to HTML</button>
+            <button onclick="window.location.href='01_introduction.php'">Previous Lesson: Introduction to HTML</button>
         </div>
         <div>
-            <button onclick="window.location.href='03_text_elements.html'">Next Lesson: Text Elements and Typography</button>
+            <button onclick="window.location.href='03_text_elements.php'">Next Lesson: Text Elements and Typography</button>
         </div>
     </div>
 </body>

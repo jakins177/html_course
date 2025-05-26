@@ -705,10 +705,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='04_links.html'">Previous Lesson: Links and Navigation</button>
+            <button onclick="window.location.href='04_links.php'">Previous Lesson: Links and Navigation</button>
         </div>
         <div>
-            <button onclick="window.location.href='06_lists.html'">Next Lesson: Lists</button>
+            <button onclick="window.location.href='06_lists.php'">Next Lesson: Lists</button>
         </div>
     </div>
 </body>

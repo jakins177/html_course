@@ -978,10 +978,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='06_lists.html'">Previous Lesson: Lists</button>
+            <button onclick="window.location.href='06_lists.php'">Previous Lesson: Lists</button>
         </div>
         <div>
-            <button onclick="window.location.href='08_forms.html'">Next Lesson: Forms and Input Elements</button>
+            <button onclick="window.location.href='08_forms.php'">Next Lesson: Forms and Input Elements</button>
         </div>
     </div>
 </body>

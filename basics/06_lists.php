@@ -807,10 +807,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='05_images.html'">Previous Lesson: Images and Multimedia</button>
+            <button onclick="window.location.href='05_images.php'">Previous Lesson: Images and Multimedia</button>
         </div>
         <div>
-            <button onclick="window.location.href='07_tables.html'">Next Lesson: Tables</button>
+            <button onclick="window.location.href='07_tables.php'">Next Lesson: Tables</button>
         </div>
     </div>
 </body>

@@ -325,7 +325,7 @@
             <button onclick="window.location.href='index.html'">Back to Course Home</button>
         </div>
         <div>
-            <button onclick="window.location.href='02_document_structure.html'">Next Lesson: HTML Document Structure</button>
+            <button onclick="window.location.href='02_document_structure.php'">Next Lesson: HTML Document Structure</button>
         </div>
     </div>
 </body>

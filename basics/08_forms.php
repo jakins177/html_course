@@ -1323,7 +1323,7 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='07_tables.html'">Previous Lesson: Tables</button>
+            <button onclick="window.location.href='07_tables.php'">Previous Lesson: Tables</button>
         </div>
         <div>
             <button onclick="window.location.href='../index.html'">Back to Course Home</button>
