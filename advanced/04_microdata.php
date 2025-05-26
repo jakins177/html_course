@@ -1255,10 +1255,10 @@ Thing
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='03_web_components.html'">Previous Lesson: Web Components</button>
+            <button onclick="window.location.href='03_web_components.php'">Previous Lesson: Web Components</button>
         </div>
         <div>
-            <button onclick="window.location.href='05_performance_optimization.html'">Next Lesson: Performance Optimization</button>
+            <button onclick="window.location.href='05_performance_optimization.php'">Next Lesson: Performance Optimization</button>
         </div>
     </div>
 </body>

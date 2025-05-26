@@ -1725,10 +1725,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='01_html5_apis.html'">Previous Lesson: HTML5 APIs</button>
+            <button onclick="window.location.href='01_html5_apis.php'">Previous Lesson: HTML5 APIs</button>
         </div>
         <div>
-            <button onclick="window.location.href='03_web_components.html'">Next Lesson: Web Components</button>
+            <button onclick="window.location.href='03_web_components.php'">Next Lesson: Web Components</button>
         </div>
     </div>
 </body>

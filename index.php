@@ -638,14 +638,14 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Master advanced HTML concepts and modern web development techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="advanced/01_html5_apis.html">HTML5 APIs and Features</a></li>
-                            <li><a href="advanced/02_canvas_svg.html">Canvas and SVG</a></li>
-                            <li><a href="advanced/03_web_components.html">Web Components</a></li>
-                            <li><a href="advanced/04_microdata.html">Microdata and Structured Data</a></li>
-                            <li><a href="advanced/05_performance_optimization.html">Performance Optimization</a></li>
-                            <li><a href="advanced/06_integration.html">Integration with CSS and JavaScript</a></li>
+                            <li><a href="advanced/01_html5_apis.php">HTML5 APIs and Features</a></li>
+                            <li><a href="advanced/02_canvas_svg.php">Canvas and SVG</a></li>
+                            <li><a href="advanced/03_web_components.php">Web Components</a></li>
+                            <li><a href="advanced/04_microdata.php">Microdata and Structured Data</a></li>
+                            <li><a href="advanced/05_performance_optimization.php">Performance Optimization</a></li>
+                            <li><a href="advanced/06_integration.php">Integration with CSS and JavaScript</a></li>
                         </ul>
-                        <a href="advanced/01_html5_apis.html" class="btn">Start Module</a>
+                        <a href="advanced/01_html5_apis.php" class="btn">Start Module</a>
                     </div>
                 </div>
             </div>
