@@ -1816,7 +1816,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='05_performance_optimization.html'">Previous Lesson: Performance Optimization</button>
+            <button onclick="window.location.href='05_performance_optimization.php'">Previous Lesson: Performance Optimization</button>
         </div>
         <div>
             <button onclick="window.location.href='../index.html'">Back to Course Home</button>

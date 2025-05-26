@@ -1336,10 +1336,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='04_microdata.html'">Previous Lesson: Microdata and Structured Data</button>
+            <button onclick="window.location.href='04_microdata.php'">Previous Lesson: Microdata and Structured Data</button>
         </div>
         <div>
-            <button onclick="window.location.href='06_integration.html'">Next Lesson: Integration with CSS and JavaScript</button>
+            <button onclick="window.location.href='06_integration.php'">Next Lesson: Integration with CSS and JavaScript</button>
         </div>
     </div>
 </body>

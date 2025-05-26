@@ -2269,7 +2269,7 @@
             <button onclick="window.location.href='../intermediate/06_advanced_forms.html'">Previous Module: Advanced Forms</button>
         </div>
         <div>
-            <button onclick="window.location.href='02_canvas_svg.html'">Next Lesson: Canvas and SVG</button>
+            <button onclick="window.location.href='02_canvas_svg.php'">Next Lesson: Canvas and SVG</button>
         </div>
     </div>
 </body>

@@ -1957,10 +1957,10 @@ customElements.define('star-rating', StarRating);</textarea>
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='02_canvas_svg.html'">Previous Lesson: Canvas and SVG</button>
+            <button onclick="window.location.href='02_canvas_svg.php'">Previous Lesson: Canvas and SVG</button>
         </div>
         <div>
-            <button onclick="window.location.href='04_microdata.html'">Next Lesson: Microdata and Structured Data</button>
+            <button onclick="window.location.href='04_microdata.php'">Next Lesson: Microdata and Structured Data</button>
         </div>
     </div>
 </body>
