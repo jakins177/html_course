@@ -38,7 +38,7 @@ try {
         $stmt->execute([$email, $password_hash]);
 
         log_error("User registered successfully: $email");
-        echo "Registration successful. <a href='../login.html'>Login</a>";
+        echo "Registration successful. <a href='../frt_login.php'>Login</a>";
     } else {
         log_error("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
         http_response_code(405);
