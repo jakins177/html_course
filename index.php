@@ -620,14 +620,14 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Expand your HTML knowledge with more advanced elements and techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="intermediate/01_semantic_elements.html">HTML5 Semantic Elements</a></li>
-                            <li><a href="intermediate/02_metadata.html">Metadata and Document Head</a></li>
-                            <li><a href="intermediate/03_accessibility.html">Accessibility Best Practices</a></li>
-                            <li><a href="intermediate/04_character_entities.html">Character Entities</a></li>
-                            <li><a href="intermediate/05_embedding_content.html">Embedding Content</a></li>
-                            <li><a href="intermediate/06_advanced_forms.html">Advanced Forms</a></li>
+                            <li><a href="intermediate/01_semantic_elements.php">HTML5 Semantic Elements</a></li>
+                            <li><a href="intermediate/02_metadata.php">Metadata and Document Head</a></li>
+                            <li><a href="intermediate/03_accessibility.php">Accessibility Best Practices</a></li>
+                            <li><a href="intermediate/04_character_entities.php">Character Entities</a></li>
+                            <li><a href="intermediate/05_embedding_content.php">Embedding Content</a></li>
+                            <li><a href="intermediate/06_advanced_forms.php">Advanced Forms</a></li>
                         </ul>
-                        <a href="intermediate/01_semantic_elements.html" class="btn">Start Module</a>
+                        <a href="intermediate/01_semantic_elements.php" class="btn">Start Module</a>
                     </div>
                 </div>
                 
