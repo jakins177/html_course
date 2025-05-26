@@ -661,10 +661,10 @@
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='03_text_elements.html'">Previous Lesson: Text Elements and Typography</button>
+            <button onclick="window.location.href='03_text_elements.php'">Previous Lesson: Text Elements and Typography</button>
         </div>
         <div>
-            <button onclick="window.location.href='05_images.html'">Next Lesson: Images and Multimedia</button>
+            <button onclick="window.location.href='05_images.php'">Next Lesson: Images and Multimedia</button>
         </div>
     </div>
 </body>

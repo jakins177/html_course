@@ -508,10 +508,10 @@ Let stand for 2 minutes, then remove to cool on wire racks.</textarea>
     
     <div class="navigation">
         <div>
-            <button onclick="window.location.href='02_document_structure.html'">Previous Lesson: HTML Document Structure</button>
+            <button onclick="window.location.href='02_document_structure.php'">Previous Lesson: HTML Document Structure</button>
         </div>
         <div>
-            <button onclick="window.location.href='04_links.html'">Next Lesson: Links and Navigation</button>
+            <button onclick="window.location.href='04_links.php'">Next Lesson: Links and Navigation</button>
         </div>
     </div>
 </body>
