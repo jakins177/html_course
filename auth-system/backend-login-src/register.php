@@ -34,7 +34,8 @@ try {
 
         $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-        $stmt = $pdo->prepare("INSERT INTO users (email, password_hash, provider) VALUES (?, ?, 'local')");
+
+        $stmt = $pdo->prepare("INSERT INTO users (email, password_hash, provider, gasergy_balance) VALUES (?, ?, 'local', 120)");
         $stmt->execute([$email, $password_hash]);
 
         log_error("User registered successfully: $email");

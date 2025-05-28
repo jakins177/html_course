@@ -1,10 +1,46 @@
+
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+file_put_contents(__DIR__ . '/index_debug.log', date('c') . " index.php loaded\n", FILE_APPEND);
+
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: auth-system/login.html');
+    file_put_contents(__DIR__ . '/index_debug.log', "No session found\n", FILE_APPEND);
+    header('Location: /auth-system/login.html');
     exit;
 }
+
+file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
+
+<?php
+session_start();
+//file_put_contents(__DIR__ . '/debug.log', date('c') . " index.php loaded\n", FILE_APPEND);
+
+if (!isset($_SESSION['user_id'])) {
+    file_put_contents(__DIR__ . '/debug.log', date('c') . " No session detected\n", FILE_APPEND);
+    header('Location: auth-system/frt_login.php');
+    exit;
+}
+
+//file_put_contents(__DIR__ . '/debug.log', date('c') . " User session active: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
+
+
+?>
+
+
+<?php
+if (isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/auth-system/config/db.php';
+    $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $balance = $stmt->fetchColumn();
+    echo "<p>Gasergy balance: ⚡ $balance</p>";
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -535,6 +571,7 @@ if (!isset($_SESSION['user_id'])) {
             <a href="#modules" class="btn">Start Learning</a>
             <a href="#projects" class="btn btn-accent">View Projects</a>
             <a href="ai_chat/" class="btn btn-primary">AI Expert Chat</a>
+            <a href="gasergy/get.php" class="btn btn-primary">⚡ Get Gasergy</a>
         </div>
     </section>
     
