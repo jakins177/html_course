@@ -845,6 +845,70 @@ i18n: {
             autoOpen: true,
             hideToggle: true
         });
+
+        // Observe n8n chat for bot messages and decrease Gasergy
+        const initAiChatGasergyObserver = () => {
+            // No gasergyDisplay element on this page, so we'll just log.
+
+            const checkForMessageListAndObserve = () => {
+                const messageList = document.querySelector('.n8n-chat-message-list');
+
+                if (messageList) {
+                    console.log('AI Chat Gasergy Observer: .n8n-chat-message-list found. Attaching MutationObserver.');
+                    const observer = new MutationObserver((mutationsList, obs) => {
+                        for (const mutation of mutationsList) {
+                            if (mutation.type === 'childList') {
+                                mutation.addedNodes.forEach(node => {
+                                    if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chat-message-from-bot')) {
+                                        if (node.dataset.gasergyProcessedAi) {
+                                            return;
+                                        }
+                                        node.dataset.gasergyProcessedAi = 'true';
+
+                                        console.log('AI Chat Gasergy Observer: New bot message detected.');
+
+                                        const formData = new URLSearchParams();
+                                        formData.append('amount', '30');
+
+                                        fetch('../gasergy/decrease_gasergy.php', { // Adjusted path
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: formData
+                                        })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(`HTTP error! status: ${response.status}`);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            if (data.success && data.new_balance !== undefined) {
+                                                console.log('AI Chat Gasergy Observer: Gasergy decreased. New balance (not displayed):', data.new_balance);
+                                            } else {
+                                                console.error('AI Chat Gasergy Observer: Failed to decrease Gasergy:', data.message || 'Unknown error');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('AI Chat Gasergy Observer: Error decreasing Gasergy:', error);
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    observer.observe(messageList, { childList: true, subtree: true });
+                } else {
+                    console.warn('AI Chat Gasergy Observer: .n8n-chat-message-list not found yet. Retrying...');
+                    setTimeout(checkForMessageListAndObserve, 300); // Retry after a short delay
+                }
+            };
+            
+            setTimeout(checkForMessageListAndObserve, 700); // Initial delay for chat message list
+        };
+
+        setTimeout(initAiChatGasergyObserver, 500); // Initial delay for chat widget to load
     </script>
 
 
