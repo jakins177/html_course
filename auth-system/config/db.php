@@ -17,3 +17,12 @@ try {
 } catch (\PDOException $e) {
      throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
+
+function getMySQLiConnection() {
+    global $host, $user, $pass, $db;
+    $mysqli = new mysqli($host, $user, $pass, $db);
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+    return $mysqli;
+}

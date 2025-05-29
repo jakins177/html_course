@@ -851,7 +851,7 @@ i18n: {
             // No gasergyDisplay element on this page, so we'll just log.
 
             const checkForMessageListAndObserve = () => {
-                const messageList = document.querySelector('.n8n-chat-message-list');
+                const messageList = document.querySelector('#n8n-chat div.chat-window-wrapper.n8n-chat div.chat-window main.chat-layout.chat-wrapper div.chat-body div.chat-messages-list');
 
                 if (messageList) {
                     console.log('AI Chat Gasergy Observer: .n8n-chat-message-list found. Attaching MutationObserver.');

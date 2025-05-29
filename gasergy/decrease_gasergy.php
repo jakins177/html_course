@@ -13,7 +13,7 @@ require_once '../auth-system/config/db.php'; // Corrected path based on ls outpu
 $amount = isset($_POST['amount']) ? (int)$_POST['amount'] : 30;
 $user_id = $_SESSION['user_id'];
 
-$conn = getDBConnection(); // Assumes db.php provides this function or $conn variable
+$conn = getMySQLiConnection(); // Assumes db.php provides this function or $conn variable
 
 if (!$conn) {
     echo json_encode(["success" => false, "message" => "Database connection failed"]);
