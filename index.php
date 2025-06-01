@@ -1161,91 +1161,124 @@ if (isset($_SESSION['user_id'])) {
 
   // Observe n8n chat for bot messages and decrease Gasergy
   const initGasergyObserver = () => {
-    const gasergyDisplay = document.getElementById('gasergy-balance-display');
-    if (!gasergyDisplay) {
-        console.warn('Gasergy display element not found. Retrying...');
-        setTimeout(initGasergyObserver, 200); // Retry after a short delay
-        return;
-    }
+    const gasergyDisplaySelector = '#gasergy-balance-display';
+    const chatWidgetContainerSelector = 'div.n8n-chat-widget-container';
+    const messageListSelectorInWidget = '.chat-messages-list'; // Relative to chatWidgetContainer
 
-    const chatWidgetContainer = document.querySelector('div.n8n-chat-widget-container'); // Adjust if a more specific container for message list exists
+    let attempts = 0;
+    const maxAttempts = 60; // Approx 15-30 seconds depending on interval
+    const initialInterval = 250; // ms for first few checks
+    const subsequentInterval = 500; // ms for later checks
 
-    if (chatWidgetContainer) {
-        // The message list might be inside a shadow DOM, or dynamically loaded.
-        // We need to observe the container that will eventually hold the message list.
-        // Or, if n8n chat provides an event/callback for when it's fully rendered, that would be better.
+    let gasergyDisplayElement = null;
+    let chatWidgetContainerElement = null;
 
-        const checkForMessageListAndObserve = () => {
-            // Assuming the message list is within the main document for now.
-            // If n8n chat uses shadow DOM, this selector needs to be adjusted or a different approach used.
-            const messageList = document.querySelector('.n8n-chat-message-list');
-
-            if (messageList) {
-                console.log('Gasergy Observer: .n8n-chat-message-list found. Attaching MutationObserver.');
-                const observer = new MutationObserver((mutationsList, obs) => {
-                    for (const mutation of mutationsList) {
-                        if (mutation.type === 'childList') {
-                            mutation.addedNodes.forEach(node => {
-                                if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chat-message-from-bot')) {
-                                    if (node.dataset.gasergyProcessed) {
-                                        return;
-                                    }
-                                    node.dataset.gasergyProcessed = 'true';
-
-                                    console.log('Gasergy Observer: New bot message detected.');
-
-                                    const formData = new URLSearchParams();
-                                    formData.append('amount', '30');
-
-                                    fetch('gasergy/decrease_gasergy.php', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded',
-                                        },
-                                        body: formData
-                                    })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error(`HTTP error! status: ${response.status}`);
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        if (data.success && data.new_balance !== undefined) {
-                                            gasergyDisplay.textContent = 'Gasergy balance: ⚡ ' + data.new_balance;
-                                            console.log('Gasergy Observer: Balance updated to:', data.new_balance);
-                                        } else {
-                                            console.error('Gasergy Observer: Failed to update balance:', data.message || 'Unknown error');
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Gasergy Observer: Error decreasing Gasergy:', error);
-                                    });
-                                }
-                            });
-                        }
-                    }
-                });
-                observer.observe(messageList, { childList: true, subtree: true });
+    const findGasergyDisplay = () => {
+        gasergyDisplayElement = document.getElementById('gasergy-balance-display');
+        if (gasergyDisplayElement) {
+            console.log(`Gasergy Observer: Found '${gasergyDisplaySelector}'.`);
+            attempts = 0; // Reset attempts for next stage
+            findChatWidgetContainer();
+        } else {
+            attempts++;
+            if (attempts < maxAttempts) {
+                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
+                console.warn(`Gasergy Observer: '${gasergyDisplaySelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
+                setTimeout(findGasergyDisplay, currentInterval);
             } else {
-                console.warn('Gasergy Observer: .n8n-chat-message-list not found yet. Retrying...');
-                setTimeout(checkForMessageListAndObserve, 300); // Retry after a short delay
+                console.error(`Gasergy Observer: Failed to find '${gasergyDisplaySelector}' after ${maxAttempts} attempts.`);
             }
-        };
-        checkForMessageListAndObserve();
+        }
+    };
 
-    } else {
-        console.warn('Gasergy Observer: n8n chat widget container not found. Retrying...');
-        setTimeout(initGasergyObserver, 200); // Retry if the main chat container isn't there
-    }
+    const findChatWidgetContainer = () => {
+        chatWidgetContainerElement = document.querySelector(chatWidgetContainerSelector);
+        if (chatWidgetContainerElement) {
+            console.log(`Gasergy Observer: Found '${chatWidgetContainerSelector}'.`);
+            attempts = 0; // Reset attempts for next stage
+            findAndObserveMessageList();
+        } else {
+            attempts++;
+            if (attempts < maxAttempts) {
+                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
+                console.warn(`Gasergy Observer: '${chatWidgetContainerSelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
+                setTimeout(findChatWidgetContainer, currentInterval);
+            } else {
+                console.error(`Gasergy Observer: Failed to find '${chatWidgetContainerSelector}' after ${maxAttempts} attempts.`);
+            }
+        }
+    };
+
+    const findAndObserveMessageList = () => {
+        const messageList = chatWidgetContainerElement.querySelector(messageListSelectorInWidget);
+        if (messageList) {
+            console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatWidgetContainerSelector}'. Attaching MutationObserver.`);
+            const observer = new MutationObserver((mutationsList, obs) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chat-message-from-bot')) {
+                                if (node.dataset.gasergyProcessed) {
+                                    return;
+                                }
+                                node.dataset.gasergyProcessed = 'true';
+
+                                console.log('Gasergy Observer: New bot message detected.');
+
+                                const formData = new URLSearchParams();
+                                formData.append('amount', '30');
+
+                                fetch('gasergy/decrease_gasergy.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: formData
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success && data.new_balance !== undefined && gasergyDisplayElement) {
+                                        gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.new_balance;
+                                        console.log('Gasergy Observer: Balance updated to:', data.new_balance);
+                                    } else if (!data.success) {
+                                        console.error('Gasergy Observer: Failed to update balance:', data.message || 'Unknown error');
+                                    } else if (!gasergyDisplayElement) {
+                                        console.error('Gasergy Observer: Gasergy display element became null, cannot update balance text.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Gasergy Observer: Error decreasing Gasergy:', error);
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+            observer.observe(messageList, { childList: true, subtree: true });
+        } else {
+            attempts++;
+            if (attempts < maxAttempts) {
+                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
+                console.warn(`Gasergy Observer: '${messageListSelectorInWidget}' not found in '${chatWidgetContainerSelector}'. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
+                setTimeout(findAndObserveMessageList, currentInterval);
+            } else {
+                console.error(`Gasergy Observer: Failed to find '${messageListSelectorInWidget}' in '${chatWidgetContainerSelector}' after ${maxAttempts} attempts.`);
+            }
+        }
+    };
+
+    // Start the polling process for the gasergy display element.
+    // Subsequent polling for other elements is chained within the success callbacks.
+    findGasergyDisplay();
   };
 
-  // Start the observer initialization process after a brief delay to allow chat to initialize
-  // Or, ideally, if createChat returns a promise or has a callback:
-  // createChat({...}).then(() => initGasergyObserver());
-  // For now, using a timeout.
-  setTimeout(initGasergyObserver, 500); // Initial delay for chat widget to load
-
+  // Call the observer initialization function.
+  initGasergyObserver();
     </script>
 </body>
 </html>

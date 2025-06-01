@@ -848,13 +848,16 @@ i18n: {
 
         // Observe n8n chat for bot messages and decrease Gasergy
         const initAiChatGasergyObserver = () => {
-            // No gasergyDisplay element on this page, so we'll just log.
+            const selector = '#chat-root .chat-messages-list';
+            let attempts = 0;
+            const maxAttempts = 50; // Approx 15 seconds if interval is 300ms
+            const interval = 300; // ms
 
-            const checkForMessageListAndObserve = () => {
-                const messageList = document.querySelector('.n8n-chat-message-list');
+            const findAndObserve = () => {
+                const messageList = document.querySelector(selector);
 
                 if (messageList) {
-                    console.log('AI Chat Gasergy Observer: .n8n-chat-message-list found. Attaching MutationObserver.');
+                    console.log(`AI Chat Gasergy Observer: Found '${selector}'. Attaching MutationObserver.`);
                     const observer = new MutationObserver((mutationsList, obs) => {
                         for (const mutation of mutationsList) {
                             if (mutation.type === 'childList') {
@@ -870,7 +873,7 @@ i18n: {
                                         const formData = new URLSearchParams();
                                         formData.append('amount', '30');
 
-                                        fetch('../gasergy/decrease_gasergy.php', { // Adjusted path
+                                        fetch('../gasergy/decrease_gasergy.php', {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -900,15 +903,22 @@ i18n: {
                     });
                     observer.observe(messageList, { childList: true, subtree: true });
                 } else {
-                    console.warn('AI Chat Gasergy Observer: .n8n-chat-message-list not found yet. Retrying...');
-                    setTimeout(checkForMessageListAndObserve, 300); // Retry after a short delay
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        console.warn(`AI Chat Gasergy Observer: '${selector}' not found yet. Attempt ${attempts}/${maxAttempts}. Retrying in ${interval}ms...`);
+                        setTimeout(findAndObserve, interval);
+                    } else {
+                        console.error(`AI Chat Gasergy Observer: Failed to find '${selector}' after ${maxAttempts} attempts.`);
+                    }
                 }
             };
             
-            setTimeout(checkForMessageListAndObserve, 700); // Initial delay for chat message list
+            // Start the process after a short initial delay to allow chat JS to potentially load
+            setTimeout(findAndObserve, 700);
         };
 
-        setTimeout(initAiChatGasergyObserver, 500); // Initial delay for chat widget to load
+        // Call the observer initialization function.
+        initAiChatGasergyObserver();
     </script>
 
 
