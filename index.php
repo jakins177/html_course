@@ -1276,7 +1276,7 @@ if (isset($_SESSION['user_id'])) {
 
     // Start the polling process for the gasergy display element.
     // Subsequent polling for other elements is chained within the success callbacks.
-    findGasergyDisplay();
+    findGasergyDisplay(); 
   };
 
   // Call the observer initialization function.
