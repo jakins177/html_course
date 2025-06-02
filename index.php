@@ -1138,6 +1138,7 @@ if (isset($_SESSION['user_id'])) {
    
     </style>      
    
+   <div id="n8n-chat"></div>
    <script type="module">
         import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
     
@@ -1147,6 +1148,7 @@ if (isset($_SESSION['user_id'])) {
   'Welcome to the AI Master HTML Assistant!',
   'Feel free to ask any questions about HTML.',
 ],
+    target: '#n8n-chat',
     i18n: {
       en: {
         title: 'AI Master HTML Assistant 👋',
@@ -1162,8 +1164,8 @@ if (isset($_SESSION['user_id'])) {
   // Observe n8n chat for bot messages and decrease Gasergy
   const initGasergyObserver = () => {
     const gasergyDisplaySelector = '#gasergy-balance-display';
-    const chatWidgetContainerSelector = 'div.n8n-chat-widget-container';
-    const messageListSelectorInWidget = '.chat-messages-list'; // Relative to chatWidgetContainer
+    const chatContainerIdSelector = '#n8n-chat'; // Changed from chatWidgetContainerSelector
+    const messageListSelectorInWidget = '.chat-messages-list'; // Relative to chatContainerElement
 
     let attempts = 0;
     const maxAttempts = 60; // Approx 15-30 seconds depending on interval
@@ -1171,14 +1173,14 @@ if (isset($_SESSION['user_id'])) {
     const subsequentInterval = 500; // ms for later checks
 
     let gasergyDisplayElement = null;
-    let chatWidgetContainerElement = null;
+    let chatContainerElement = null; // Renamed from chatWidgetContainerElement
 
     const findGasergyDisplay = () => {
         gasergyDisplayElement = document.getElementById('gasergy-balance-display');
         if (gasergyDisplayElement) {
             console.log(`Gasergy Observer: Found '${gasergyDisplaySelector}'.`);
             attempts = 0; // Reset attempts for next stage
-            findChatWidgetContainer();
+            findChatContainer(); // Renamed from findChatWidgetContainer
         } else {
             attempts++;
             if (attempts < maxAttempts) {
@@ -1191,28 +1193,28 @@ if (isset($_SESSION['user_id'])) {
         }
     };
 
-    const findChatWidgetContainer = () => {
-        chatWidgetContainerElement = document.querySelector(chatWidgetContainerSelector);
-        if (chatWidgetContainerElement) {
-            console.log(`Gasergy Observer: Found '${chatWidgetContainerSelector}'.`);
+    const findChatContainer = () => { // Renamed from findChatWidgetContainer
+        chatContainerElement = document.querySelector(chatContainerIdSelector); // Use new selector name
+        if (chatContainerElement) {
+            console.log(`Gasergy Observer: Found '${chatContainerIdSelector}'.`); // Use new selector name in log
             attempts = 0; // Reset attempts for next stage
             findAndObserveMessageList();
         } else {
             attempts++;
             if (attempts < maxAttempts) {
                 const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
-                console.warn(`Gasergy Observer: '${chatWidgetContainerSelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
-                setTimeout(findChatWidgetContainer, currentInterval);
+                console.warn(`Gasergy Observer: '${chatContainerIdSelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`); // Use new selector name in log
+                setTimeout(findChatContainer, currentInterval); // Recursive call to renamed function
             } else {
-                console.error(`Gasergy Observer: Failed to find '${chatWidgetContainerSelector}' after ${maxAttempts} attempts.`);
+                console.error(`Gasergy Observer: Failed to find '${chatContainerIdSelector}' after ${maxAttempts} attempts.`); // Use new selector name in log
             }
         }
     };
 
     const findAndObserveMessageList = () => {
-        const messageList = chatWidgetContainerElement.querySelector(messageListSelectorInWidget);
+        const messageList = chatContainerElement.querySelector(messageListSelectorInWidget); // Use renamed chatContainerElement
         if (messageList) {
-            console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatWidgetContainerSelector}'. Attaching MutationObserver.`);
+            console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatContainerIdSelector}'. Attaching MutationObserver.`); // Use new selector name in log
             const observer = new MutationObserver((mutationsList, obs) => {
                 for (const mutation of mutationsList) {
                     if (mutation.type === 'childList') {
@@ -1264,10 +1266,10 @@ if (isset($_SESSION['user_id'])) {
             attempts++;
             if (attempts < maxAttempts) {
                 const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
-                console.warn(`Gasergy Observer: '${messageListSelectorInWidget}' not found in '${chatWidgetContainerSelector}'. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
+                console.warn(`Gasergy Observer: '${messageListSelectorInWidget}' not found in '${chatContainerIdSelector}'. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`); // Use new selector name in log
                 setTimeout(findAndObserveMessageList, currentInterval);
             } else {
-                console.error(`Gasergy Observer: Failed to find '${messageListSelectorInWidget}' in '${chatWidgetContainerSelector}' after ${maxAttempts} attempts.`);
+                console.error(`Gasergy Observer: Failed to find '${messageListSelectorInWidget}' in '${chatContainerIdSelector}' after ${maxAttempts} attempts.`); // Use new selector name in log
             }
         }
     };
