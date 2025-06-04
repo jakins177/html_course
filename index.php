@@ -1208,55 +1208,52 @@ if (isset($_SESSION['user_id'])) {
     };
 
     const findAndObserveMessageList = () => {
-        const messageList = chatContainerElement.querySelector(messageListSelectorInWidget); // Use renamed chatContainerElement
-        if (messageList) {
-            console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatContainerIdSelector}'. Attaching MutationObserver.`); // Use new selector name in log
-            const observer = new MutationObserver((mutationsList, obs) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach(node => {
-                            if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chat-message-from-bot')) {
-                                if (node.dataset.gasergyProcessed) {
-                                    return;
-                                }
-                                node.dataset.gasergyProcessed = 'true';
+        const messageList = chatContainerElement.querySelector(messageListSelectorInWidget);
+      if (messageList) {
+        console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatContainerIdSelector}'. Attaching MutationObserver.`);
+        const observer = new MutationObserver((mutationsList, obs) => {
+          for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+              const newBotMessages = Array.from(mutation.addedNodes).filter(node =>
+                node.nodeType === Node.ELEMENT_NODE &&
+                node.classList.contains('chat-message') &&
+                node.classList.contains('chat-message-from-bot') &&
+                !node.dataset.gasergyProcessed &&
+                node.querySelector('.chat-message-markdown p')
+              );
 
-                                console.log('Gasergy Observer: New bot message detected.');
+              if (newBotMessages.length > 0) {
+                const newestMessage = newBotMessages[newBotMessages.length - 1];
+                newestMessage.dataset.gasergyProcessed = 'true';
 
-                                const formData = new URLSearchParams();
-                                formData.append('amount', '30');
+                console.log('Gasergy Observer: New bot message detected.');
 
-                        fetch('gasergy/decrease_gasergy.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success && typeof data.balance !== 'undefined' && gasergyDisplayElement) {
-                            gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
-                            console.log('Gasergy Observer: Balance updated to:', data.balance);
-                        } else if (!data.success) {
-                            console.error('Gasergy Observer: Failed to update balance:', data.message || 'Unknown error');
-                        } else if (!gasergyDisplayElement) {
-                            console.error('Gasergy Observer: Gasergy display element is null, cannot update balance text.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Gasergy Observer: Error decreasing Gasergy:', error);
-                    });
+                const formData = new URLSearchParams();
+                formData.append('amount', '30');
 
-                            }
-                        });
-                    }
-                }
+                fetch('gasergy/decrease_gasergy.php', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                  body: formData
+                })
+                .then(response => {
+                  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                  return response.json();
+                })
+                .then(data => {
+                  if (data.success && typeof data.balance !== 'undefined' && gasergyDisplayElement) {
+                    gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
+                    console.log('Gasergy Observer: Balance updated to:', data.balance);
+                  }
+                })
+                .catch(error => {
+                  console.error('Gasergy Observer: Error decreasing Gasergy:', error);
+                });
+              }
+            }
+          }
             });
             observer.observe(messageList, { childList: true, subtree: true });
         } else {
