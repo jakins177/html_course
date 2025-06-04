@@ -18,12 +18,8 @@ if (!isset($_SESSION['user_id'])) {
 //file_put_contents(__DIR__ . '/debug.log', date('c') . " User session active: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 
 
-
-
 file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
-
-
 
 
 <?php
@@ -42,7 +38,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOFO!!!! Comprehensive HTML Course</title>
+    <title>HTML Master Comprehensive HTML Course</title>
     <style>
         :root {
             --primary-color: #3498db;
@@ -1230,32 +1226,33 @@ if (isset($_SESSION['user_id'])) {
                                 const formData = new URLSearchParams();
                                 formData.append('amount', '30');
 
-                                fetch('gasergy/decrease_gasergy.php', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: formData
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error(`HTTP error! status: ${response.status}`);
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success && data.new_balance !== undefined && gasergyDisplayElement) {
-                                        gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.new_balance;
-                                        console.log('Gasergy Observer: Balance updated to:', data.new_balance);
-                                    } else if (!data.success) {
-                                        console.error('Gasergy Observer: Failed to update balance:', data.message || 'Unknown error');
-                                    } else if (!gasergyDisplayElement) {
-                                        console.error('Gasergy Observer: Gasergy display element became null, cannot update balance text.');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Gasergy Observer: Error decreasing Gasergy:', error);
-                                });
+                        fetch('gasergy/decrease_gasergy.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && typeof data.balance !== 'undefined' && gasergyDisplayElement) {
+                            gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
+                            console.log('Gasergy Observer: Balance updated to:', data.balance);
+                        } else if (!data.success) {
+                            console.error('Gasergy Observer: Failed to update balance:', data.message || 'Unknown error');
+                        } else if (!gasergyDisplayElement) {
+                            console.error('Gasergy Observer: Gasergy display element is null, cannot update balance text.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Gasergy Observer: Error decreasing Gasergy:', error);
+                    });
+
                             }
                         });
                     }
