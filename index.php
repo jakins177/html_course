@@ -930,141 +930,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
     
-    <script>
-        // Progress Tracking System
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProgress();
-        });
-        
-        function loadProgress() {
-            // Check if progress data exists in localStorage
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Update completed lessons count
-                document.getElementById('completed-lessons').textContent = progress.completedLessons;
-                
-                // Calculate and update completion percentage
-                const totalLessons = 20; // 8 basics + 6 intermediate + 6 advanced
-                const completionPercentage = Math.round((progress.completedLessons / totalLessons) * 100);
-                document.getElementById('completion-percentage').textContent = completionPercentage + '%';
-                
-                // Update quiz score
-                document.getElementById('quiz-score').textContent = progress.quizScore + '%';
-                
-                // Update module progress
-                document.getElementById('basics-progress').textContent = progress.basicsCompleted + '/8 completed';
-                document.getElementById('basics-progress-bar').style.width = (progress.basicsCompleted / 8 * 100) + '%';
-                
-                document.getElementById('intermediate-progress').textContent = progress.intermediateCompleted + '/6 completed';
-                document.getElementById('intermediate-progress-bar').style.width = (progress.intermediateCompleted / 6 * 100) + '%';
-                
-                document.getElementById('advanced-progress').textContent = progress.advancedCompleted + '/6 completed';
-                document.getElementById('advanced-progress-bar').style.width = (progress.advancedCompleted / 6 * 100) + '%';
-                
-                // Update lesson list with progress indicators
-                updateLessonListIndicators(progress);
-            } else {
-                // Initialize progress data if it doesn't exist
-                initializeProgress();
-            }
-        }
-        
-        function initializeProgress() {
-            const progress = {
-                completedLessons: 0,
-                quizScore: 0,
-                basicsCompleted: 0,
-                intermediateCompleted: 0,
-                advancedCompleted: 0,
-                lessons: {}
-            };
-            
-            localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-            loadProgress();
-        }
-        
-        function resetProgress() {
-            if (confirm('Are you sure you want to reset your progress? This cannot be undone.')) {
-                localStorage.removeItem('htmlCourseProgress');
-                initializeProgress();
-            }
-        }
-        
-        function updateLessonListIndicators(progress) {
-            // This function would add visual indicators to the lesson list
-            // based on which lessons have been completed
-            // Implementation would depend on the specific lesson data structure
-        }
-        
-        // Mark a lesson as completed (would be called from lesson pages)
-        function markLessonCompleted(lessonId, module) {
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Check if lesson is already completed
-                if (!progress.lessons[lessonId]) {
-                    progress.completedLessons++;
-                    progress.lessons[lessonId] = true;
-                    
-                    // Update module-specific completion
-                    if (module === 'basics') {
-                        progress.basicsCompleted++;
-                    } else if (module === 'intermediate') {
-                        progress.intermediateCompleted++;
-                    } else if (module === 'advanced') {
-                        progress.advancedCompleted++;
-                    }
-                    
-                    localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-                    loadProgress();
-                }
-            }
-        }
-        
-        // Update quiz score (would be called from lesson pages)
-        function updateQuizScore(score) {
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Simple average calculation
-                // In a real implementation, you might want to weight quizzes differently
-                const currentScore = progress.quizScore || 0;
-                const quizCount = progress.quizCount || 0;
-                
-                const newQuizCount = quizCount + 1;
-                const newScore = Math.round(((currentScore * quizCount) + score) / newQuizCount);
-                
-                progress.quizScore = newScore;
-                progress.quizCount = newQuizCount;
-                
-                localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-                loadProgress();
-            }
-        }
-        
-        // Project Modal Functions
-        function openProjectModal(project) {
-            document.getElementById(project + '-modal').style.display = 'block';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Removed legacy progress tracking and modal functions -->
     <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
    
     <style>
@@ -1135,146 +1001,41 @@ if (isset($_SESSION['user_id'])) {
     </style>      
    
    <div id="n8n-chat"></div>
-   <script type="module">
-        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
-    
-        createChat({
-    webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
-    initialMessages: [
-  'Welcome to the AI Master HTML Assistant!',
-  'Feel free to ask any questions about HTML.',
-],
-    target: '#n8n-chat',
-    i18n: {
-      en: {
-        title: 'AI Master HTML Assistant 👋',
-        subtitle: 'Ask me anything anytime about your HTML learning needs',
-        footer: '',
-        getStarted: 'New Conversation',
-        inputPlaceholder: 'Type your question...',
+   <!-- Removed old n8n-chat module script -->
+    <script src="assets/js/main-scripts.js"></script>
+    <script type="module" src="assets/js/chat-logic.js"></script>
+    <script type="module">
+      import { initializeN8NChat } from './assets/js/chat-logic.js';
 
-      },
-    },
-  });
-
-  // Observe n8n chat for bot messages and decrease Gasergy
-  const initGasergyObserver = () => {
-    const gasergyDisplaySelector = '#gasergy-balance-display';
-    const chatContainerIdSelector = '#n8n-chat'; // Changed from chatWidgetContainerSelector
-    const messageListSelectorInWidget = '.chat-messages-list'; // Relative to chatContainerElement
-
-    let attempts = 0;
-    const maxAttempts = 60; // Approx 15-30 seconds depending on interval
-    const initialInterval = 250; // ms for first few checks
-    const subsequentInterval = 500; // ms for later checks
-
-    let gasergyDisplayElement = null;
-    let chatContainerElement = null; // Renamed from chatWidgetContainerElement
-
-    const findGasergyDisplay = () => {
-        gasergyDisplayElement = document.getElementById('gasergy-balance-display');
-        if (gasergyDisplayElement) {
-            console.log(`Gasergy Observer: Found '${gasergyDisplaySelector}'.`);
-            attempts = 0; // Reset attempts for next stage
-            findChatContainer(); // Renamed from findChatWidgetContainer
-        } else {
-            attempts++;
-            if (attempts < maxAttempts) {
-                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
-                console.warn(`Gasergy Observer: '${gasergyDisplaySelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`);
-                setTimeout(findGasergyDisplay, currentInterval);
-            } else {
-                console.error(`Gasergy Observer: Failed to find '${gasergyDisplaySelector}' after ${maxAttempts} attempts.`);
-            }
-        }
-    };
-
-    const findChatContainer = () => { // Renamed from findChatWidgetContainer
-        chatContainerElement = document.querySelector(chatContainerIdSelector); // Use new selector name
-        if (chatContainerElement) {
-            console.log(`Gasergy Observer: Found '${chatContainerIdSelector}'.`); // Use new selector name in log
-            attempts = 0; // Reset attempts for next stage
-            findAndObserveMessageList();
-        } else {
-            attempts++;
-            if (attempts < maxAttempts) {
-                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
-                console.warn(`Gasergy Observer: '${chatContainerIdSelector}' not found. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`); // Use new selector name in log
-                setTimeout(findChatContainer, currentInterval); // Recursive call to renamed function
-            } else {
-                console.error(`Gasergy Observer: Failed to find '${chatContainerIdSelector}' after ${maxAttempts} attempts.`); // Use new selector name in log
-            }
-        }
-    };
-
-    const findAndObserveMessageList = () => {
-        const messageList = chatContainerElement.querySelector(messageListSelectorInWidget);
-      if (messageList) {
-        console.log(`Gasergy Observer: Found '${messageListSelectorInWidget}' within '${chatContainerIdSelector}'. Attaching MutationObserver.`);
-        const observer = new MutationObserver((mutationsList, obs) => {
-          for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-              const newBotMessages = Array.from(mutation.addedNodes).filter(node =>
-                node.nodeType === Node.ELEMENT_NODE &&
-                node.classList.contains('chat-message') &&
-                node.classList.contains('chat-message-from-bot') &&
-                !node.dataset.gasergyProcessed &&
-                node.querySelector('.chat-message-markdown p')
-              );
-
-              if (newBotMessages.length > 0) {
-                const newestMessage = newBotMessages[newBotMessages.length - 1];
-                newestMessage.dataset.gasergyProcessed = 'true';
-
-                console.log('Gasergy Observer: New bot message detected.');
-
-                const formData = new URLSearchParams();
-                formData.append('amount', '30');
-
-                fetch('gasergy/decrease_gasergy.php', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                  },
-                  body: formData
-                })
-                .then(response => {
-                  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                  return response.json();
-                })
-                .then(data => {
-                  if (data.success && typeof data.balance !== 'undefined' && gasergyDisplayElement) {
-                    gasergyDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
-                    console.log('Gasergy Observer: Balance updated to:', data.balance);
-                  }
-                })
-                .catch(error => {
-                  console.error('Gasergy Observer: Error decreasing Gasergy:', error);
-                });
-              }
-            }
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initialize main scripts (like progress tracking) if it has its own init function,
+        // or ensure it runs on DOMContentLoaded from within main-scripts.js itself.
+        // For chat:
+        initializeN8NChat({
+          webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
+          initialMessages: [
+            'Welcome to the AI Master HTML Assistant!',
+            'Feel free to ask any questions about HTML.',
+          ],
+          i18n: {
+            en: {
+              title: 'AI Master HTML Assistant 👋',
+              subtitle: 'Ask me anything anytime about your HTML learning needs',
+              footer: '',
+              getStarted: 'New Conversation',
+              inputPlaceholder: 'Type your question...',
+            },
+          },
+          target: '#n8n-chat', // Target for index.php
+          mode: 'popup', // Default mode
+          autoOpen: false,
+          hideToggle: false,
+          gasergy: {
+            fetchPath: 'gasergy/decrease_gasergy.php', // Path for index.php
+            balanceDisplaySelector: '#gasergy-balance-display' // Selector for balance display
           }
-            });
-            observer.observe(messageList, { childList: true, subtree: true });
-        } else {
-            attempts++;
-            if (attempts < maxAttempts) {
-                const currentInterval = attempts <= 5 ? initialInterval : subsequentInterval;
-                console.warn(`Gasergy Observer: '${messageListSelectorInWidget}' not found in '${chatContainerIdSelector}'. Attempt ${attempts}/${maxAttempts}. Retrying in ${currentInterval}ms...`); // Use new selector name in log
-                setTimeout(findAndObserveMessageList, currentInterval);
-            } else {
-                console.error(`Gasergy Observer: Failed to find '${messageListSelectorInWidget}' in '${chatContainerIdSelector}' after ${maxAttempts} attempts.`); // Use new selector name in log
-            }
-        }
-    };
-
-    // Start the polling process for the gasergy display element.
-    // Subsequent polling for other elements is chained within the success callbacks.
-    findGasergyDisplay(); 
-  };
-
-  // Call the observer initialization function.
-  initGasergyObserver();
+        });
+      });
     </script>
 </body>
 </html>
