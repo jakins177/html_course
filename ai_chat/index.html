@@ -604,141 +604,7 @@
         </div>
     </div>
     
-    <script>
-        // Progress Tracking System
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProgress();
-        });
-        
-        function loadProgress() {
-            // Check if progress data exists in localStorage
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Update completed lessons count
-                document.getElementById('completed-lessons').textContent = progress.completedLessons;
-                
-                // Calculate and update completion percentage
-                const totalLessons = 20; // 8 basics + 6 intermediate + 6 advanced
-                const completionPercentage = Math.round((progress.completedLessons / totalLessons) * 100);
-                document.getElementById('completion-percentage').textContent = completionPercentage + '%';
-                
-                // Update quiz score
-                document.getElementById('quiz-score').textContent = progress.quizScore + '%';
-                
-                // Update module progress
-                document.getElementById('basics-progress').textContent = progress.basicsCompleted + '/8 completed';
-                document.getElementById('basics-progress-bar').style.width = (progress.basicsCompleted / 8 * 100) + '%';
-                
-                document.getElementById('intermediate-progress').textContent = progress.intermediateCompleted + '/6 completed';
-                document.getElementById('intermediate-progress-bar').style.width = (progress.intermediateCompleted / 6 * 100) + '%';
-                
-                document.getElementById('advanced-progress').textContent = progress.advancedCompleted + '/6 completed';
-                document.getElementById('advanced-progress-bar').style.width = (progress.advancedCompleted / 6 * 100) + '%';
-                
-                // Update lesson list with progress indicators
-                updateLessonListIndicators(progress);
-            } else {
-                // Initialize progress data if it doesn't exist
-                initializeProgress();
-            }
-        }
-        
-        function initializeProgress() {
-            const progress = {
-                completedLessons: 0,
-                quizScore: 0,
-                basicsCompleted: 0,
-                intermediateCompleted: 0,
-                advancedCompleted: 0,
-                lessons: {}
-            };
-            
-            localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-            loadProgress();
-        }
-        
-        function resetProgress() {
-            if (confirm('Are you sure you want to reset your progress? This cannot be undone.')) {
-                localStorage.removeItem('htmlCourseProgress');
-                initializeProgress();
-            }
-        }
-        
-        function updateLessonListIndicators(progress) {
-            // This function would add visual indicators to the lesson list
-            // based on which lessons have been completed
-            // Implementation would depend on the specific lesson data structure
-        }
-        
-        // Mark a lesson as completed (would be called from lesson pages)
-        function markLessonCompleted(lessonId, module) {
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Check if lesson is already completed
-                if (!progress.lessons[lessonId]) {
-                    progress.completedLessons++;
-                    progress.lessons[lessonId] = true;
-                    
-                    // Update module-specific completion
-                    if (module === 'basics') {
-                        progress.basicsCompleted++;
-                    } else if (module === 'intermediate') {
-                        progress.intermediateCompleted++;
-                    } else if (module === 'advanced') {
-                        progress.advancedCompleted++;
-                    }
-                    
-                    localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-                    loadProgress();
-                }
-            }
-        }
-        
-        // Update quiz score (would be called from lesson pages)
-        function updateQuizScore(score) {
-            const progressData = localStorage.getItem('htmlCourseProgress');
-            
-            if (progressData) {
-                const progress = JSON.parse(progressData);
-                
-                // Simple average calculation
-                // In a real implementation, you might want to weight quizzes differently
-                const currentScore = progress.quizScore || 0;
-                const quizCount = progress.quizCount || 0;
-                
-                const newQuizCount = quizCount + 1;
-                const newScore = Math.round(((currentScore * quizCount) + score) / newQuizCount);
-                
-                progress.quizScore = newScore;
-                progress.quizCount = newQuizCount;
-                
-                localStorage.setItem('htmlCourseProgress', JSON.stringify(progress));
-                loadProgress();
-            }
-        }
-        
-        // Project Modal Functions
-        function openProjectModal(project) {
-            document.getElementById(project + '-modal').style.display = 'block';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Removed legacy progress tracking and modal functions -->
     <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
    
 
@@ -821,107 +687,39 @@
         
     </style>      
    
-   <script type="module">
-        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
-    
-        createChat({
-            webhookUrl: "https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat",
-            initialMessages: [
-  'Welcome to the AI Master HTML Assistant!',
-  'Feel free to ask any questions about HTML.',
-],
-i18n: {
-      en: {
-        title: 'AI Master HTML Assistant 👋',
-        subtitle: 'Ask me anything anytime about your HTML learning needs',
-        footer: '',
-        getStarted: 'New Conversation',
-        inputPlaceholder: 'Type your question...',
+    <!-- Removed old chat initialization script -->
+    <script src="../assets/js/main-scripts.js"></script>
+    <script type="module" src="../assets/js/chat-logic.js"></script>
+    <script type="module">
+      import { initializeN8NChat } from '../assets/js/chat-logic.js';
 
-      },
-    },
-            target: "#chat-root",
-            mode: 'fullscreen', 
-            autoOpen: true,
-            hideToggle: true
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeN8NChat({
+          webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
+          initialMessages: [
+            'Welcome to the AI Master HTML Assistant!',
+            'Feel free to ask any questions about HTML.',
+          ],
+          i18n: {
+            en: {
+              title: 'AI Master HTML Assistant 👋',
+              subtitle: 'Ask me anything anytime about your HTML learning needs',
+              footer: '',
+              getStarted: 'New Conversation',
+              inputPlaceholder: 'Type your question...',
+            },
+          },
+          target: '#chat-root', // Target for ai_chat/index.html
+          mode: 'fullscreen',   // Fullscreen mode
+          autoOpen: true,       // Auto open
+          hideToggle: true,     // Hide toggle
+          gasergy: {
+            fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.html
+            // No balanceDisplaySelector for ai_chat as it's fullscreen and doesn't show balance.
+          }
         });
-
-        // Observe n8n chat for bot messages and decrease Gasergy
-        const initAiChatGasergyObserver = () => {
-            const selector = '#chat-root .chat-messages-list';
-            let attempts = 0;
-            const maxAttempts = 50; // Approx 15 seconds if interval is 300ms
-            const interval = 300; // ms
-
-            const findAndObserve = () => {
-                const messageList = document.querySelector(selector);
-
-                if (messageList) {
-                    console.log(`AI Chat Gasergy Observer: Found '${selector}'. Attaching MutationObserver.`);
-                    const observer = new MutationObserver((mutationsList, obs) => {
-                        for (const mutation of mutationsList) {
-                            if (mutation.type === 'childList') {
-                                mutation.addedNodes.forEach(node => {
-                                    if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chat-message-from-bot')) {
-                                        if (node.dataset.gasergyProcessedAi) {
-                                            return;
-                                        }
-                                        node.dataset.gasergyProcessedAi = 'true';
-
-                                        console.log('AI Chat Gasergy Observer: New bot message detected.');
-
-                                        const formData = new URLSearchParams();
-                                        formData.append('amount', '30');
-
-                                        fetch('../gasergy/decrease_gasergy.php', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                            body: formData
-                                        })
-                                        .then(response => {
-                                            if (!response.ok) {
-                                                throw new Error(`HTTP error! status: ${response.status}`);
-                                            }
-                                            return response.json();
-                                        })
-                                        .then(data => {
-                                            if (data.success && data.new_balance !== undefined) {
-                                                console.log('AI Chat Gasergy Observer: Gasergy decreased. New balance (not displayed):', data.new_balance);
-                                            } else {
-                                                console.error('AI Chat Gasergy Observer: Failed to decrease Gasergy:', data.message || 'Unknown error');
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('AI Chat Gasergy Observer: Error decreasing Gasergy:', error);
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    observer.observe(messageList, { childList: true, subtree: true });
-                } else {
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        console.warn(`AI Chat Gasergy Observer: '${selector}' not found yet. Attempt ${attempts}/${maxAttempts}. Retrying in ${interval}ms...`);
-                        setTimeout(findAndObserve, interval);
-                    } else {
-                        console.error(`AI Chat Gasergy Observer: Failed to find '${selector}' after ${maxAttempts} attempts.`);
-                    }
-                }
-            };
-            
-            // Start the process after a short initial delay to allow chat JS to potentially load
-            setTimeout(findAndObserve, 700); 
-        };
-
-        // Call the observer initialization function.
-        initAiChatGasergyObserver();
+      });
     </script>
-
-
 </body>
 <!-- <footer>
     <div class="container">
