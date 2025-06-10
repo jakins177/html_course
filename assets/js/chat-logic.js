@@ -1,3 +1,5 @@
+import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
 export function initializeN8NChat(config) {
   createChat({
     webhookUrl: config.webhookUrl,
@@ -15,7 +17,7 @@ export function initializeN8NChat(config) {
 }
 
 function initGasergyObserver(gasergyConfig, chatTargetSelector) {
-  console.log("Initializing Gasergy observer with config:", gasergyConfig);
+  console.log("Initializing Gasergy observer with config:", gasergyConfig, "and chat target selector:", chatTargetSelector);
 
   const chatContainer = document.querySelector(chatTargetSelector);
   if (!chatContainer) {
@@ -25,7 +27,7 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
 
   const messagesList = chatContainer.querySelector('.chat-messages-list');
   if (!messagesList) {
-    console.error("Gasergy Observer: Chat messages list not found within chat container:", chatTargetSelector);
+    console.error("Gasergy Observer: Chat messages list not found within chat container using selector .chat-messages-list on element:", chatContainer);
     return;
   }
 
@@ -34,47 +36,77 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
     balanceDisplayElement = document.querySelector(gasergyConfig.balanceDisplaySelector);
     if (!balanceDisplayElement) {
       console.warn("Gasergy Observer: Balance display element not found with selector:", gasergyConfig.balanceDisplaySelector);
+    } else {
+      console.log("Gasergy Observer: Found balance display element:", balanceDisplayElement);
     }
+  } else {
+    console.log("Gasergy Observer: No balanceDisplaySelector provided in config.");
   }
 
   const observer = new MutationObserver((mutationsList, observer) => {
     for (const mutation of mutationsList) {
+      console.log('Gasergy Observer: Mutation detected:', mutation); // Log each mutation record
+
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        mutation.addedNodes.forEach(node => {
+        mutation.addedNodes.forEach(node => { // Iterate with forEach for logging individual nodes
+          console.log('Gasergy Observer: Checking added node:', node);
           if (node.nodeType === Node.ELEMENT_NODE) {
-            const isUserMessage = node.classList.contains('chat-message-user');
-            if (isUserMessage) {
-              console.log("Gasergy Observer: User message detected.");
-              fetch(gasergyConfig.fetchPath, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  action: 'decrease_gasergy',
-                  userId: 1 // Replace with actual user ID
-                })
-              })
-              .then(response => response.json())
-              .then(data => {
-                console.log("Gasergy API response:", data);
-                if (data.success && balanceDisplayElement) {
-                  balanceDisplayElement.textContent = data.newBalance;
-                  console.log("Gasergy balance updated to:", data.newBalance);
-                } else if (!data.success) {
-                  console.error("Gasergy API error:", data.message);
-                }
-              })
-              .catch(error => {
-                console.error('Error calling Gasergy API:', error);
-              });
-            }
+            console.log('Gasergy Observer: Node classes:', node.classList);
+            console.log('Gasergy Observer: Node dataset.gasergyProcessed:', node.dataset.gasergyProcessed);
+            const markdownContent = node.querySelector('.chat-message-markdown p');
+            console.log('Gasergy Observer: Node querySelector .chat-message-markdown p:', markdownContent ? markdownContent.textContent : null);
           }
         });
+
+        // Now, apply the precise filter logic
+        const newBotMessages = Array.from(mutation.addedNodes).filter(node =>
+          node.nodeType === Node.ELEMENT_NODE &&
+          node.classList.contains('chat-message') &&
+          node.classList.contains('chat-message-from-bot') &&
+          !node.dataset.gasergyProcessed && // Check for the flag
+          node.querySelector('.chat-message-markdown p') // Check for the specific content structure
+        );
+
+        if (newBotMessages.length > 0) {
+          const newestMessage = newBotMessages[newBotMessages.length - 1];
+          newestMessage.dataset.gasergyProcessed = 'true'; // Set the flag
+          console.log('Gasergy Observer: New bot message detected. Contents:', newestMessage.textContent);
+
+          const formData = new URLSearchParams();
+          formData.append('amount', '30'); // As per instruction
+
+          fetch(gasergyConfig.fetchPath, { // Use gasergyConfig.fetchPath
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded', // As per instruction
+            },
+            body: formData
+          })
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+          })
+          .then(data => {
+            console.log('Gasergy Observer: API response data:', data); // Log API response
+            if (data.success && typeof data.balance !== 'undefined') {
+              if (balanceDisplayElement) { // Check if balanceDisplayElement exists
+                balanceDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
+                console.log('Gasergy Observer: Balance updated to:', data.balance);
+              } else {
+                console.log('Gasergy Observer: Balance updated (no display element):', data.balance);
+              }
+            } else {
+              console.error('Gasergy Observer: Failed to update balance, API data:', data);
+            }
+          })
+          .catch(error => {
+            console.error('Gasergy Observer: Error decreasing Gasergy:', error);
+          });
+        }
       }
     }
   });
 
-  observer.observe(messagesList, { childList: true });
+  observer.observe(messagesList, { childList: true, subtree: true }); // Added subtree: true for deeper changes if necessary
   console.log("Gasergy Observer: MutationObserver attached to messages list:", messagesList);
 }
