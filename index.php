@@ -537,7 +537,7 @@ if (isset($_SESSION['user_id'])) {
            
             <nav>
   <ul>
-    <li><a href="ai_chat/">AI Expert Chat</a></li>
+    <li><a href="ai_chat/index.php">AI Expert Chat</a></li>
     <li><a href="#course-overview">Overview</a></li>
     <li><a href="#modules">Modules</a></li>
                         <!-- <li><a href="#progress">Progress</a></li> -->
@@ -561,7 +561,7 @@ if (isset($_SESSION['user_id'])) {
             <p>Need quick answers or guidance? Try our new <strong>AI Expert Chat</strong> for instant help with coding questions, examples, and more.</p>
             <a href="#modules" class="btn">Start Learning</a>
             <a href="#projects" class="btn btn-accent">View Projects</a>
-            <a href="ai_chat/" class="btn btn-primary">AI Expert Chat</a>
+            <a href="ai_chat/index.php" class="btn btn-primary">AI Expert Chat</a>
             <a href="gasergy/get.php" class="btn btn-primary">⚡ Get Gasergy</a>
         </div>
     </section>
