@@ -714,8 +714,9 @@
           autoOpen: true,       // Auto open
           hideToggle: true,     // Hide toggle
           gasergy: {
-            fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.html
+            fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.php
             // No balanceDisplaySelector for ai_chat as it's fullscreen and doesn't show balance.
+            refillPath: '../gasergy/get.php' // Added
           }
         });
       });

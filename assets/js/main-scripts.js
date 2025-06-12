@@ -77,14 +77,14 @@ function updateOverallProgressIndicator() {
   const userProgress = loadProgress();
   const totalLessons = 10; // Example: if you have 10 lessons in total
   const completedLessonsCount = userProgress.completedLessons.length;
-
+  
   // Example: Calculate progress based on completed lessons
   // You might want a more sophisticated calculation if quizzes also count
   const progressPercentage = (completedLessonsCount / totalLessons) * 100;
-
+  
   const progressBar = document.getElementById('overall-progress-bar');
   const progressText = document.getElementById('overall-progress-text');
-
+  
   if (progressBar) {
     progressBar.style.width = progressPercentage + '%';
   }

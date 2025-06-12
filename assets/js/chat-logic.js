@@ -16,8 +16,57 @@ export function initializeN8NChat(config) {
   }
 }
 
+function displayOutOfGasergyMessage(refillPath, messagesContainerElement, chatTargetSelectorForInput) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'chat-message chat-message-from-bot'; 
+
+  const markdownDiv = document.createElement('div');
+  markdownDiv.className = 'chat-message-markdown';
+
+  const p = document.createElement('p');
+  const actualRefillPath = refillPath || '#'; 
+  if (!refillPath) {
+      console.warn('Gasergy Observer: refillPath not provided for OutOfGasergyMessage. Using "#" as fallback.');
+  }
+  p.innerHTML = `I am out of Gasergy. As an SRN Master HTML AI assistant, I need Gasergy to continue functioning. Please re-charge my tank: <a href='${actualRefillPath}' target='_blank'>Get Gasergy</a>`;
+  
+  markdownDiv.appendChild(p);
+  messageDiv.appendChild(markdownDiv);
+  messagesContainerElement.appendChild(messageDiv);
+
+  // Ensure Scroll-to-Bottom
+  messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
+  console.log('Gasergy Observer: "Out of Gasergy" message displayed.');
+
+  // Correct Input Disabling Logic
+  const chatRootElement = document.querySelector(chatTargetSelectorForInput);
+  if (chatRootElement) {
+    // Use the specific selector for the textarea based on n8n chat structure
+    const inputElement = chatRootElement.querySelector('.chat-input .chat-inputs textarea'); 
+    if (inputElement) {
+      inputElement.disabled = true;
+      inputElement.placeholder = 'Gasergy depleted. Please recharge.';
+      console.log('Gasergy Observer: Chat input disabled using selector:', chatTargetSelectorForInput + ' .chat-input .chat-inputs textarea');
+    } else {
+      // Fallback to a more generic textarea selector within the chat widget
+      const fallbackInputElement = chatRootElement.querySelector('textarea'); 
+      if (fallbackInputElement) {
+          fallbackInputElement.disabled = true;
+          fallbackInputElement.placeholder = 'Gasergy depleted. Please recharge.';
+          console.warn('Gasergy Observer: Used fallback selector to disable textarea:', chatTargetSelectorForInput + ' textarea');
+      } else {
+          console.error('Gasergy Observer: Could not find chat input textarea using specific or fallback selectors within:', chatTargetSelectorForInput);
+      }
+    }
+  } else {
+    console.error('Gasergy Observer: Could not find chat root element for input disabling:', chatTargetSelectorForInput);
+  }
+}
+
 function initGasergyObserver(gasergyConfig, chatTargetSelector) {
   console.log("Initializing Gasergy observer with config:", gasergyConfig, "and chat target selector:", chatTargetSelector);
+
+  let gasergyDepletedMessageShown = false; // Flag to ensure message is shown only once
 
   const chatContainer = document.querySelector(chatTargetSelector);
   if (!chatContainer) {
@@ -44,11 +93,16 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
   }
 
   const observer = new MutationObserver((mutationsList, observer) => {
+    if (gasergyDepletedMessageShown) {
+      // console.log('Gasergy Observer: Depleted message already shown, skipping further processing.'); // Optional for debugging
+      return;
+    }
+
     for (const mutation of mutationsList) {
-      console.log('Gasergy Observer: Mutation detected:', mutation); // Log each mutation record
+      console.log('Gasergy Observer: Mutation detected:', mutation); 
 
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        mutation.addedNodes.forEach(node => { // Iterate with forEach for logging individual nodes
+        mutation.addedNodes.forEach(node => { 
           console.log('Gasergy Observer: Checking added node:', node);
           if (node.nodeType === Node.ELEMENT_NODE) {
             console.log('Gasergy Observer: Node classes:', node.classList);
@@ -58,27 +112,26 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
           }
         });
 
-        // Now, apply the precise filter logic
         const newBotMessages = Array.from(mutation.addedNodes).filter(node =>
           node.nodeType === Node.ELEMENT_NODE &&
           node.classList.contains('chat-message') &&
           node.classList.contains('chat-message-from-bot') &&
-          !node.dataset.gasergyProcessed && // Check for the flag
-          node.querySelector('.chat-message-markdown p') // Check for the specific content structure
+          !node.dataset.gasergyProcessed && 
+          node.querySelector('.chat-message-markdown p') 
         );
 
         if (newBotMessages.length > 0) {
           const newestMessage = newBotMessages[newBotMessages.length - 1];
-          newestMessage.dataset.gasergyProcessed = 'true'; // Set the flag
+          newestMessage.dataset.gasergyProcessed = 'true'; 
           console.log('Gasergy Observer: New bot message detected. Contents:', newestMessage.textContent);
 
           const formData = new URLSearchParams();
-          formData.append('amount', '30'); // As per instruction
+          formData.append('amount', '30'); 
 
-          fetch(gasergyConfig.fetchPath, { // Use gasergyConfig.fetchPath
+          fetch(gasergyConfig.fetchPath, { 
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded', // As per instruction
+              'Content-Type': 'application/x-www-form-urlencoded', 
             },
             body: formData
           })
@@ -87,13 +140,34 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
             return response.json();
           })
           .then(data => {
-            console.log('Gasergy Observer: API response data:', data); // Log API response
+            console.log('Gasergy Observer: API response data:', data); 
             if (data.success && typeof data.balance !== 'undefined') {
-              if (balanceDisplayElement) { // Check if balanceDisplayElement exists
+              if (balanceDisplayElement) { 
                 balanceDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
                 console.log('Gasergy Observer: Balance updated to:', data.balance);
               } else {
                 console.log('Gasergy Observer: Balance updated (no display element):', data.balance);
+              }
+
+              if (data.balance <= 0) {
+                console.log('Gasergy Observer: Gasergy is zero or less. Current balance:', data.balance);
+                gasergyDepletedMessageShown = true; // Set the flag immediately
+                
+                const chatTargetElement = document.querySelector(chatTargetSelector);
+                if (chatTargetElement) {
+                  const messagesContainer = chatTargetElement.querySelector('.chat-messages-list');
+                  if (messagesContainer) {
+                    displayOutOfGasergyMessage(
+                      gasergyConfig.refillPath,
+                      messagesContainer,
+                      chatTargetSelector 
+                    );
+                  } else {
+                    console.error('Gasergy Observer: Could not find .chat-messages-list within', chatTargetSelector);
+                  }
+                } else {
+                  console.error('Gasergy Observer: Could not find chat target element:', chatTargetSelector);
+                }
               }
             } else {
               console.error('Gasergy Observer: Failed to update balance, API data:', data);
@@ -107,6 +181,6 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
     }
   });
 
-  observer.observe(messagesList, { childList: true, subtree: true }); // Added subtree: true for deeper changes if necessary
+  observer.observe(messagesList, { childList: true, subtree: true }); 
   console.log("Gasergy Observer: MutationObserver attached to messages list:", messagesList);
 }
