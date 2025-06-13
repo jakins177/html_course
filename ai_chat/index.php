@@ -716,7 +716,8 @@
           gasergy: {
             fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.php
             // No balanceDisplaySelector for ai_chat as it's fullscreen and doesn't show balance.
-            refillPath: '../gasergy/get.php' // Added
+            refillPath: '../gasergy/get.php',
+            balancePath: '../gasergy/get_balance.php'
           }
         });
       });

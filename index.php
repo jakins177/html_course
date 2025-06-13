@@ -1033,7 +1033,8 @@ if (isset($_SESSION['user_id'])) {
           gasergy: {
             fetchPath: 'gasergy/decrease_gasergy.php', // Path for index.php
             balanceDisplaySelector: '#gasergy-balance-display', // Selector for balance display
-            refillPath: 'gasergy/get.php' // Added
+            refillPath: 'gasergy/get.php',
+            balancePath: 'gasergy/get_balance.php'
           }
         });
       });
