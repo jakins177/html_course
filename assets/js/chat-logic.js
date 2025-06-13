@@ -12,7 +12,13 @@ export function initializeN8NChat(config) {
   });
 
   if (config.gasergy) {
-    initGasergyObserver(config.gasergy, config.target);
+    const gasergyConfig = {
+      fetchPath: config.gasergy.fetchPath,
+      refillPath: config.gasergy.refillPath,
+      balanceDisplaySelector: config.gasergy.balanceDisplaySelector,
+      balancePath: config.gasergy.balancePath,
+    };
+    initGasergyObserver(gasergyConfig, config.target);
   }
 }
 
@@ -90,6 +96,32 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
     }
   } else {
     console.log("Gasergy Observer: No balanceDisplaySelector provided in config.");
+  }
+
+  if (gasergyConfig.balancePath) {
+    fetch(gasergyConfig.balancePath)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        if (typeof data.balance !== 'undefined') {
+          if (balanceDisplayElement) {
+            balanceDisplayElement.textContent = 'Gasergy balance: ⚡ ' + data.balance;
+          }
+          if (data.balance <= 0) {
+            gasergyDepletedMessageShown = true;
+            displayOutOfGasergyMessage(
+              gasergyConfig.refillPath,
+              messagesList,
+              chatTargetSelector
+            );
+          }
+        }
+      })
+      .catch((err) => console.error('Gasergy Observer: Error fetching balance:', err));
+  } else {
+    console.warn('Gasergy Observer: balancePath not provided in config.');
   }
 
   const observer = new MutationObserver((mutationsList, observer) => {
