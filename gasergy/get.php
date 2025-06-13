@@ -4,14 +4,6 @@ file_put_contents(__DIR__ . '/get_debug.log', date('c') . " get.php\n", FILE_APP
 
 if (!isset($_SESSION['user_id'])) {
     file_put_contents(__DIR__ . '/get_debug.log', "Not logged in\n", FILE_APPEND);
-    header('Location: /auth-system/login.html');
-    exit;
-}
-?>
-
-<?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
     header('Location: /auth-system/frt_login.php');
     exit;
 }
