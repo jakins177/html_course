@@ -156,12 +156,15 @@ function initGasergyObserver(gasergyConfig, chatTargetSelector) {
                 const chatTargetElement = document.querySelector(chatTargetSelector);
                 if (chatTargetElement) {
                   const messagesContainer = chatTargetElement.querySelector('.chat-messages-list');
-                  if (messagesContainer) {
-                    displayOutOfGasergyMessage(
-                      gasergyConfig.refillPath,
-                      messagesContainer,
-                      chatTargetSelector 
-                    );
+                    if (messagesContainer) {
+                      if (newestMessage && newestMessage.parentNode) {
+                        newestMessage.remove();
+                      }
+                      displayOutOfGasergyMessage(
+                        gasergyConfig.refillPath,
+                        messagesContainer,
+                        chatTargetSelector
+                      );
                   } else {
                     console.error('Gasergy Observer: Could not find .chat-messages-list within', chatTargetSelector);
                   }
