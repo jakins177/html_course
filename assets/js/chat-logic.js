@@ -22,6 +22,33 @@ export function initializeN8NChat(config) {
   }
 }
 
+function disableChatInput(chatTargetSelectorForInput) {
+  const chatRootElement = document.querySelector(chatTargetSelectorForInput);
+  if (!chatRootElement) {
+    console.error('Gasergy Observer: Could not find chat root element for input disabling:', chatTargetSelectorForInput);
+    return false;
+  }
+
+  const inputElement = chatRootElement.querySelector('.chat-input .chat-inputs textarea');
+  if (inputElement) {
+    inputElement.disabled = true;
+    inputElement.placeholder = 'Gasergy depleted. Please recharge.';
+    console.log('Gasergy Observer: Chat input disabled using selector:', chatTargetSelectorForInput + ' .chat-input .chat-inputs textarea');
+    return true;
+  }
+
+  const fallbackInputElement = chatRootElement.querySelector('textarea');
+  if (fallbackInputElement) {
+    fallbackInputElement.disabled = true;
+    fallbackInputElement.placeholder = 'Gasergy depleted. Please recharge.';
+    console.warn('Gasergy Observer: Used fallback selector to disable textarea:', chatTargetSelectorForInput + ' textarea');
+    return true;
+  }
+
+  console.error('Gasergy Observer: Could not find chat input textarea using specific or fallback selectors within:', chatTargetSelectorForInput);
+  return false;
+}
+
 function displayOutOfGasergyMessage(refillPath, messagesContainerElement, chatTargetSelectorForInput) {
   const messageDiv = document.createElement('div');
   messageDiv.className = 'chat-message chat-message-from-bot'; 
@@ -44,28 +71,12 @@ function displayOutOfGasergyMessage(refillPath, messagesContainerElement, chatTa
   messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
   console.log('Gasergy Observer: "Out of Gasergy" message displayed.');
 
-  // Correct Input Disabling Logic
-  const chatRootElement = document.querySelector(chatTargetSelectorForInput);
-  if (chatRootElement) {
-    // Use the specific selector for the textarea based on n8n chat structure
-    const inputElement = chatRootElement.querySelector('.chat-input .chat-inputs textarea'); 
-    if (inputElement) {
-      inputElement.disabled = true;
-      inputElement.placeholder = 'Gasergy depleted. Please recharge.';
-      console.log('Gasergy Observer: Chat input disabled using selector:', chatTargetSelectorForInput + ' .chat-input .chat-inputs textarea');
-    } else {
-      // Fallback to a more generic textarea selector within the chat widget
-      const fallbackInputElement = chatRootElement.querySelector('textarea'); 
-      if (fallbackInputElement) {
-          fallbackInputElement.disabled = true;
-          fallbackInputElement.placeholder = 'Gasergy depleted. Please recharge.';
-          console.warn('Gasergy Observer: Used fallback selector to disable textarea:', chatTargetSelectorForInput + ' textarea');
-      } else {
-          console.error('Gasergy Observer: Could not find chat input textarea using specific or fallback selectors within:', chatTargetSelectorForInput);
+  if (!disableChatInput(chatTargetSelectorForInput)) {
+    const intervalId = setInterval(() => {
+      if (disableChatInput(chatTargetSelectorForInput)) {
+        clearInterval(intervalId);
       }
-    }
-  } else {
-    console.error('Gasergy Observer: Could not find chat root element for input disabling:', chatTargetSelectorForInput);
+    }, 500);
   }
 }
 
