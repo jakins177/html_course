@@ -108,7 +108,7 @@ function displayOutOfGasergyMessage(refillPath, messagesContainerElement, chatTa
 }
 
 function initGasergyObserver(gasergyConfig, chatTargetSelector) {
-  console.log("Initializing YAYA BOY!!!!!!!CHJWOHCEVFFHY456 Gasergy observer with config:", gasergyConfig, "and chat target selector:", chatTargetSelector);
+  console.log("Initializing Gasergy observer with config:", gasergyConfig, "and chat target selector:", chatTargetSelector);
 
   let gasergyDepletedMessageShown = false; 
 
