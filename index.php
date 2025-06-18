@@ -4,19 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 file_put_contents(__DIR__ . '/index_debug.log', date('c') . " index.php loaded\n", FILE_APPEND);
-?>
-<?php
-session_start();
-//file_put_contents(__DIR__ . '/debug.log', date('c') . " index.php loaded\n", FILE_APPEND);
 
-if (!isset($_SESSION['user_id'])) {
-    file_put_contents(__DIR__ . '/debug.log', date('c') . " No session detected\n", FILE_APPEND);
-    header('Location: auth-system/frt_login.php');
-    exit;
-}
-
-//file_put_contents(__DIR__ . '/debug.log', date('c') . " User session active: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
-
+require_once __DIR__ . '/auth-system/login_check.php';
+require_once __DIR__ . '/auth-system/config/db.php';
 
 file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
@@ -24,7 +14,6 @@ file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id
 
 <?php
 if (isset($_SESSION['user_id'])) {
-    require_once __DIR__ . '/auth-system/config/db.php';
     $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $balance = $stmt->fetchColumn();
