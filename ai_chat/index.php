@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../auth-system/login_check.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
