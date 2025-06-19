@@ -3,3 +3,8 @@
 debug.log
 register_error.log
 gasergy/decrease_debug.log
+
+/vendor/
+composer.lock
+# logs
+*.log
