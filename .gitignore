@@ -3,7 +3,8 @@
 debug.log
 register_error.log
 gasergy/decrease_debug.log
-
+# Never track local secrets
+.env
 /vendor/
 composer.lock
 # logs
