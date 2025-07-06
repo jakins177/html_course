@@ -1,8 +1,10 @@
 <?php
-$host = 'localhost';
+require_once __DIR__ . '/../../config/env.php';
+
+$host = getenv('DB_HOST') ?: 'localhost';
 $db   = 'robot_network';
-$user = 'srn_user';
-$pass = 'J0j0j0j0!';
+$user = getenv('DB_USER') ?: 'srn_user';
+$pass = getenv('DB_PASS') ?: 'J0j0j0j0!';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -17,3 +19,4 @@ try {
 } catch (\PDOException $e) {
      throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
+?>

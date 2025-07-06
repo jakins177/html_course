@@ -1,4 +1,8 @@
 <?php
+$envPath = __DIR__ . '/env.php';
+if (file_exists($envPath)) {
+    require_once $envPath;
+}
 // Load Stripe configuration from environment variables.
 // Replace placeholders with your actual keys in production or set environment variables.
 $stripeSecretKey = getenv('STRIPE_SECRET_KEY') ?: 'sk_test_placeholder';
