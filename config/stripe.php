@@ -12,13 +12,13 @@ $stripeWebhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_placeholder';
 // Map Gasergy amounts to Stripe Price IDs.
 $gasergyPrices = [
     // Starter – $2.50 for 500 Gasergy
-    500    => 'price_500g_placeholder',
+    'starter'    => 'price_1RcBfNGUmegTY8R1cATII8Yy',
     // Professional – $10 for 2 500 Gasergy
-    2500   => 'price_2500g_placeholder',
+    'professional'   => 'price_1RcBfNGUmegTY8R1gZsObwZO',
     // Business – $30 for 10 000 Gasergy
-    10000  => 'price_10000g_placeholder',
+    'business'  => 'price_1RcBfNGUmegTY8R13ub5OXoC',
     // Enterprise – $125 for 50 000 Gasergy
-    50000  => 'price_50000g_placeholder',
+    'enterprise'  => 'price_1RcBfNGUmegTY8R1HjuXKFzH',
 ];
 
 function priceForGasergy(int $amount): ?string {
