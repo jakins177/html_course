@@ -20,7 +20,7 @@ if ($amount <= 0 || !$priceId) {
 
 try {
     $session = \Stripe\Checkout\Session::create([
-        'mode' => 'payment',
+        'mode' => 'subscription',
         'line_items' => [[
             'price' => $priceId,
             'quantity' => 1,
