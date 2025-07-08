@@ -10,15 +10,17 @@ $stripePublishableKey = getenv('STRIPE_PUBLISHABLE_KEY') ?: 'pk_test_placeholder
 $stripeWebhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_placeholder';
 
 // Map Gasergy amounts to Stripe Price IDs.
+// The checkout form posts the amount of Gasergy the user wants to buy, so the
+// mapping keys must be the numeric amounts rather than plan names.
 $gasergyPrices = [
     // Starter – $2.50 for 500 Gasergy
-    'starter'    => 'price_1RcBfNGUmegTY8R1cATII8Yy',
+    500    => 'price_1RcBfNGUmegTY8R1cATII8Yy',
     // Professional – $10 for 2 500 Gasergy
-    'professional'   => 'price_1RcBfNGUmegTY8R1gZsObwZO',
+    2500   => 'price_1RcBfNGUmegTY8R1gZsObwZO',
     // Business – $30 for 10 000 Gasergy
-    'business'  => 'price_1RcBfNGUmegTY8R13ub5OXoC',
+    10000  => 'price_1RcBfNGUmegTY8R13ub5OXoC',
     // Enterprise – $125 for 50 000 Gasergy
-    'enterprise'  => 'price_1RcBfNGUmegTY8R1HjuXKFzH',
+    50000  => 'price_1RcBfNGUmegTY8R1HjuXKFzH',
 ];
 
 function priceForGasergy(int $amount): ?string {
