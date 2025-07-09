@@ -1,8 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../auth-system/config/db.php';
 require_once __DIR__ . '/../config/stripe.php';
+
+$logFile = __DIR__ . '/checkout.log';
+function log_checkout($msg) {
+    global $logFile;
+    file_put_contents($logFile, date('c') . ' ' . $msg . PHP_EOL, FILE_APPEND);
+}
+log_checkout('start user=' . ($_SESSION['user_id'] ?? 'none') . ' amount=' . ($_POST['amount'] ?? ''));
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(403);
@@ -12,6 +18,7 @@ if (!isset($_SESSION['user_id'])) {
 $amount = intval($_POST['amount'] ?? 0);
 $priceId = priceForGasergy($amount);
 if ($amount <= 0 || !$priceId) {
+    log_checkout("invalid amount " . $amount);
     http_response_code(400);
     exit('Invalid amount');
 }
@@ -31,8 +38,10 @@ try {
         'metadata' => ['amount' => $amount],
     ]);
     header('Location: ' . $session->url, true, 303);
+    log_checkout("session created " . $session->id);
     exit;
 } catch (Exception $e) {
+    log_checkout("error: " . $e->getMessage());
     http_response_code(500);
     echo 'Error creating checkout session';
 }
