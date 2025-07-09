@@ -35,8 +35,23 @@ function log_checkout($msg) {
 log_checkout('Script execution started. PHP error reporting enabled for debugging.');
 
 session_start();
-require_once __DIR__ . '/../vendor/autoload.php';
+
+
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($autoload)) {
+    error_log("Missing Stripe autoload at $autoload");
+    http_response_code(500);
+    exit('Server misconfiguration: dependencies not installed');
+}
+require_once $autoload;
+
 require_once __DIR__ . '/../config/stripe.php';
+
+$logFile = __DIR__ . '/checkout.log';
+function log_checkout($msg) {
+    global $logFile;
+    file_put_contents($logFile, date('c') . ' ' . $msg . PHP_EOL, FILE_APPEND);
+}
 
 log_checkout('start user=' . ($_SESSION['user_id'] ?? 'none') . ' amount=' . ($_POST['amount'] ?? ''));
 
@@ -90,7 +105,9 @@ try {
     // Optionally, provide a more user-friendly error message or a generic one
     echo 'Error creating checkout session due to Stripe API issue.';
 } catch (Exception $e) {
+
     log_checkout("Generic error: " . $e->getMessage() . " - Trace: " . $e->getTraceAsString());
+
     http_response_code(500);
     echo 'Error creating checkout session';
 }
