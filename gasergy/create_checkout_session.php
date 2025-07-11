@@ -38,6 +38,8 @@ session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 
+$baseUrl = rtrim(getenv('BASE_URL') ?: '', '/');
+
 log_checkout('start user=' . ($_SESSION['user_id'] ?? 'none') . ' amount=' . ($_POST['amount'] ?? ''));
 
 if (!isset($_SESSION['user_id'])) {
@@ -63,8 +65,8 @@ try {
             'price' => $priceId,
             'quantity' => 1,
         ]],
-        'success_url' => '/gasergy/success.php?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url'  => '/gasergy/get.php',
+        'success_url' => ($baseUrl ?: '') . '/gasergy/success.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url'  => ($baseUrl ?: '') . '/gasergy/get.php',
         'client_reference_id' => $_SESSION['user_id'],
         'metadata' => ['amount' => $amount],
     ];
@@ -75,8 +77,8 @@ try {
             'price'    => $priceId,
             'quantity' => 1,
         ]],
-        'success_url'        => '/gasergy/success.php?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url'         => '/gasergy/get.php',
+        'success_url'        => ($baseUrl ?: '') . '/gasergy/success.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url'         => ($baseUrl ?: '') . '/gasergy/get.php',
         'client_reference_id'=> $_SESSION['user_id'],
         'metadata'           => ['amount' => $amount],
     ]);
