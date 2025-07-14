@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
 
+
 $logFile = __DIR__ . '/subscription.log';
 if (!file_exists($logFile)) {
     @touch($logFile);
@@ -27,13 +28,16 @@ $uid = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT stripe_subscription_id FROM users WHERE id = ?");
 $stmt->execute([$uid]);
 $userSub = $stmt->fetchColumn();
+
 log_subscription('db subscription id=' . ($userSub ?: 'none') . ' for user=' . $uid);
+
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 $subscription = null;
 if ($userSub) {
     try {
         $subscription = \Stripe\Subscription::retrieve($userSub);
+
         log_subscription('Stripe subscription retrieved id=' . $userSub);
     } catch (Exception $e) {
         log_subscription('Stripe error retrieving ' . $userSub . ': ' . $e->getMessage());
@@ -41,6 +45,7 @@ if ($userSub) {
     }
 } else {
     log_subscription('no subscription id for user=' . $uid);
+
 }
 ?>
 <!DOCTYPE html>
