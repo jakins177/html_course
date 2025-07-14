@@ -68,6 +68,7 @@ if (!isset($_SESSION['user_id'])) {
 <body>
 
   <h1>Get Gasergy ⚡</h1>
+  <p><a href="manage_subscription.php">Manage Subscription</a></p>
   <p>Select your plan:</p>
 
   <div class="pricing-grid">

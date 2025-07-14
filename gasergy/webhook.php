@@ -30,27 +30,51 @@ switch ($event->type) {
         $session = $event->data->object;
         $userId = $session->client_reference_id;
         $amount = intval($session->metadata->amount ?? 0);
-    
+        $subscriptionId = $session->subscription;
+
         if ($userId && $amount > 0) {
             try {
-                $stmt = $pdo->prepare("UPDATE users SET gasergy_balance = gasergy_balance + ? WHERE id = ?");
-                $stmt->execute([$amount, $userId]);
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET gasergy_balance = gasergy_balance + ?, " .
+                    "stripe_subscription_id = ?, subscription_gasergy = ? WHERE id = ?"
+                );
+                $stmt->execute([$amount, $subscriptionId, $amount, $userId]);
             } catch (Exception $e) {
                 // log error in real setup
             }
         }
-        
-        file_put_contents($logFile,
-        "checkout.session.completed: user={$session->client_reference_id} " .
-        "amount={$session->metadata->amount}\n", FILE_APPEND);
-        // existing logic...
+
+        file_put_contents(
+            $logFile,
+            "checkout.session.completed: user={$session->client_reference_id} " .
+            "amount={$session->metadata->amount} subscription={$subscriptionId}\n",
+            FILE_APPEND
+        );
         break;
     case 'invoice.paid':
         // add monthly Gasergy credits for the user
         $invoice = $event->data->object;
-        file_put_contents($logFile,
-            "invoice.paid: subscription={$invoice->subscription} " .
-            "customer={$invoice->customer}\n", FILE_APPEND);
+        $subscriptionId = $invoice->subscription;
+        $stmt = $pdo->prepare(
+            "SELECT id, subscription_gasergy FROM users WHERE stripe_subscription_id = ?"
+        );
+        $stmt->execute([$subscriptionId]);
+        $row = $stmt->fetch();
+        if ($row) {
+            $amount = intval($row['subscription_gasergy']);
+            if ($amount > 0) {
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET gasergy_balance = gasergy_balance + ? WHERE id = ?"
+                );
+                $stmt->execute([$amount, $row['id']]);
+            }
+        }
+        $userLog = $row ? $row['id'] : 'n/a';
+        file_put_contents(
+            $logFile,
+            "invoice.paid: subscription={$subscriptionId} user={$userLog}\n",
+            FILE_APPEND
+        );
         break;
     case 'invoice.payment_failed':
         $invoice = $event->data->object;

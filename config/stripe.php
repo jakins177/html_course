@@ -27,3 +27,8 @@ function priceForGasergy(int $amount): ?string {
     global $gasergyPrices;
     return $gasergyPrices[$amount] ?? null;
 }
+function gasergyForPrice(string $priceId): ?int {
+    global $gasergyPrices;
+    $lookup = array_flip($gasergyPrices);
+    return $lookup[$priceId] ?? null;
+}
