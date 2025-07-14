@@ -12,3 +12,5 @@ Users can purchase subscription plans via Stripe and manage their plan from the
 * Monthly renewals are processed in `gasergy/webhook.php` when Stripe sends an
   `invoice.paid` event. The user receives their plan's Gasergy every month.
 
+* Subscription actions log to `gasergy/subscription.log` for troubleshooting.
+
