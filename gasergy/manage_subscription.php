@@ -17,6 +17,23 @@ function log_subscription($msg) {
         error_log('log_subscription failed: ' . $msg);
     }
 }
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    log_subscription("PHP error [$severity] $message in $file:$line");
+});
+
+set_exception_handler(function ($e) {
+    log_subscription('Uncaught exception: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Internal Server Error');
+});
+
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        log_subscription('Fatal error: ' . $err['message'] . ' in ' . $err['file'] . ':' . $err['line']);
+    }
+});
 log_subscription('manage_subscription start user=' . ($_SESSION['user_id'] ?? 'none'));
 
 if (!isset($_SESSION['user_id'])) {
