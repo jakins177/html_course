@@ -72,6 +72,15 @@ if ($userSub) {
     <title>Manage Subscription</title>
 </head>
 <body>
+<?php if (isset($_GET['update'])): ?>
+    <?php if ($_GET['update'] === 'success'): ?>
+        <p style="color:green;">Upgrade successful and invoice paid.</p>
+    <?php elseif ($_GET['update'] === 'pending'): ?>
+        <p style="color:orange;">Subscription updated but payment is pending.</p>
+    <?php else: ?>
+        <p style="color:red;">Upgrade failed. <a href="update_payment.php">Update your payment information</a> and try again.</p>
+    <?php endif; ?>
+<?php endif; ?>
 <h1>Your Gasergy Subscription</h1>
 <?php if ($subscription): ?>
     <?php
@@ -85,7 +94,7 @@ if ($userSub) {
     <p>Status: <?php echo $status; ?></p>
     <p>Next billing date: <?php echo $nextBilling; ?></p>
     <h2>Change Plan</h2>
-    <form action="update_subscription.php" method="POST">
+    <form action="confirm_upgrade.php" method="POST">
         <select name="amount">
             <option value="500">Starter - 500 Gasergy/month</option>
             <option value="2500">Professional - 2 500 Gasergy/month</option>

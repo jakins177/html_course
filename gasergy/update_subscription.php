@@ -53,7 +53,7 @@ try {
     log_subscription('Stripe retrieved subscription id=' . $subscriptionId);
 
     $itemId = $subscription->items->data[0]->id;
-    \Stripe\Subscription::update($subscriptionId, [
+    $updated = \Stripe\Subscription::update($subscriptionId, [
         'cancel_at_period_end' => false,
         'items' => [
             ['id' => $itemId, 'price' => $priceId]
@@ -62,6 +62,14 @@ try {
     ]);
     $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
     $stmt->execute([$amount, $userId]);
+
+    // check invoice status
+    $invoiceId = $updated->latest_invoice;
+    $invoicePaid = false;
+    if ($invoiceId) {
+        $invoice = \Stripe\Invoice::retrieve($invoiceId);
+        $invoicePaid = ($invoice->status === 'paid');
+    }
 } catch (Exception $e) {
 
     log_subscription('Stripe error updating ' . $subscriptionId . ': ' . $e->getMessage());
@@ -70,4 +78,5 @@ try {
     exit('Stripe error');
 }
 
-header('Location: manage_subscription.php');
+$status = isset($invoicePaid) ? ($invoicePaid ? 'success' : 'pending') : 'error';
+header('Location: manage_subscription.php?update=' . $status);
