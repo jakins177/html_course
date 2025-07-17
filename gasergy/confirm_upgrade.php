@@ -47,17 +47,19 @@ try {
     log_subscription('retrieved subscription id=' . $subscriptionId);
 
     $itemId = $subscription->items->data[0]->id;
+
+    log_subscription('subscription item id=' . $itemId);
     // Estimate proration cost using upcoming invoice
-    $invoice = \Stripe\Invoice::upcoming([
+    $params = [
         'customer' => $subscription->customer,
-        'subscription_details' => [
-            'subscription' => $subscriptionId,
-            'items' => [
-                ['id' => $itemId, 'price' => $priceId]
-            ],
-            'proration_behavior' => 'create_prorations'
-        ]
-    ]);
+        'subscription' => $subscriptionId,
+        'subscription_items' => [
+            ['id' => $itemId, 'price' => $priceId]
+        ],
+        'subscription_proration_behavior' => 'create_prorations'
+    ];
+    log_subscription('upcoming invoice params=' . json_encode($params, JSON_PRETTY_PRINT));
+    $invoice = \Stripe\Invoice::upcoming($params);
     $amountDue = $invoice->amount_due / 100; // convert from cents
 
     log_subscription('upcoming invoice amount=' . $amountDue);
