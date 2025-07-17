@@ -1,5 +1,19 @@
 <?php
 session_start();
+
+$logFile = __DIR__ . '/subscription.log';
+if (!file_exists($logFile)) {
+    @touch($logFile);
+}
+function log_subscription($msg) {
+    global $logFile;
+    if (is_writable($logFile)) {
+        file_put_contents($logFile, date('c') . ' ' . $msg . PHP_EOL, FILE_APPEND);
+    } else {
+        error_log('log_subscription failed: ' . $msg);
+    }
+}
+log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'));
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
@@ -30,18 +44,25 @@ if (!$subscriptionId) {
 try {
     $subscription = \Stripe\Subscription::retrieve($subscriptionId);
 
+    log_subscription('retrieved subscription id=' . $subscriptionId);
+
     $itemId = $subscription->items->data[0]->id;
     // Estimate proration cost using upcoming invoice
     $invoice = \Stripe\Invoice::upcoming([
         'customer' => $subscription->customer,
-        'subscription' => $subscriptionId,
-        'subscription_items' => [
-            ['id' => $itemId, 'price' => $priceId]
-        ],
-        'subscription_proration_behavior' => 'create_prorations'
+        'subscription_details' => [
+            'subscription' => $subscriptionId,
+            'items' => [
+                ['id' => $itemId, 'price' => $priceId]
+            ],
+            'proration_behavior' => 'create_prorations'
+        ]
     ]);
     $amountDue = $invoice->amount_due / 100; // convert from cents
+
+    log_subscription('upcoming invoice amount=' . $amountDue);
 } catch (Exception $e) {
+    log_subscription('Stripe error in confirm_upgrade: ' . $e->getMessage());
     http_response_code(500);
     exit('Stripe error');
 }
