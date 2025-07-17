@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
 
+
 $logFile = __DIR__ . '/subscription.log';
 if (!file_exists($logFile)) {
     @touch($logFile);
@@ -38,6 +39,7 @@ log_subscription('update_payment start user=' . ($_SESSION['user_id'] ?? 'none')
 
 if (!isset($_SESSION['user_id'])) {
     log_subscription('unauthorized access');
+
     http_response_code(403);
     exit('Unauthorized');
 }
@@ -49,6 +51,7 @@ $subscriptionId = $stmt->fetchColumn();
 
 if (!$subscriptionId) {
     log_subscription('no subscription for user=' . $userId);
+
     http_response_code(400);
     exit('No active subscription');
 }
@@ -65,6 +68,7 @@ try {
     exit;
 } catch (Exception $e) {
     log_subscription('Stripe error update_payment ' . $e->getMessage());
+
     http_response_code(500);
     exit('Stripe error');
 }

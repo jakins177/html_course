@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
 
+
 $logFile = __DIR__ . '/subscription.log';
 if (!file_exists($logFile)) {
     @touch($logFile);
@@ -38,6 +39,7 @@ log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'
 
 if (!isset($_SESSION['user_id'])) {
     log_subscription('unauthorized access');
+
     http_response_code(403);
     exit('Unauthorized');
 }
@@ -45,7 +47,10 @@ if (!isset($_SESSION['user_id'])) {
 $amount = intval($_POST['amount'] ?? 0);
 $priceId = priceForGasergy($amount);
 if ($amount <= 0 || !$priceId) {
+
     log_subscription('invalid plan amount=' . $amount);
+=======
+
     http_response_code(400);
     exit('Invalid plan');
 }
@@ -56,7 +61,9 @@ $stmt->execute([$userId]);
 $subscriptionId = $stmt->fetchColumn();
 
 if (!$subscriptionId) {
+
     log_subscription('no subscription for user=' . $userId);
+
     http_response_code(400);
     exit('No active subscription');
 }
@@ -64,6 +71,7 @@ if (!$subscriptionId) {
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 try {
     $subscription = \Stripe\Subscription::retrieve($subscriptionId);
+
     $itemId = $subscription->items->data[0]->id;
     // Estimate proration cost using upcoming invoice
     $invoice = \Stripe\Invoice::upcoming([
@@ -76,7 +84,9 @@ try {
     ]);
     $amountDue = $invoice->amount_due / 100; // convert from cents
 } catch (Exception $e) {
+
     log_subscription('Stripe error confirm_upgrade ' . $e->getMessage());
+
     http_response_code(500);
     exit('Stripe error');
 }
