@@ -34,8 +34,7 @@ register_shutdown_function(function () {
     }
 });
 
-log_subscription('update_subscription start user=' . ($_SESSION['user_id'] ?? 'none'));
-
+log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'));
 
 if (!isset($_SESSION['user_id'])) {
     log_subscription('unauthorized access');
@@ -51,15 +50,10 @@ if ($amount <= 0 || !$priceId) {
     exit('Invalid plan');
 }
 
-log_subscription('requested amount=' . $amount . ' priceId=' . ($priceId ?: 'none'));
-
-
 $userId = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT stripe_subscription_id FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $subscriptionId = $stmt->fetchColumn();
-
-log_subscription('db subscription id=' . ($subscriptionId ?: 'none') . ' for user=' . $userId);
 
 if (!$subscriptionId) {
     log_subscription('no subscription for user=' . $userId);
@@ -70,34 +64,39 @@ if (!$subscriptionId) {
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 try {
     $subscription = \Stripe\Subscription::retrieve($subscriptionId);
-
-    log_subscription('Stripe retrieved subscription id=' . $subscriptionId);
-
     $itemId = $subscription->items->data[0]->id;
-    $updated = \Stripe\Subscription::update($subscriptionId, [
-        'cancel_at_period_end' => false,
-        'items' => [
+    // Estimate proration cost using upcoming invoice
+    $invoice = \Stripe\Invoice::upcoming([
+        'customer' => $subscription->customer,
+        'subscription' => $subscriptionId,
+        'subscription_items' => [
             ['id' => $itemId, 'price' => $priceId]
         ],
-        'proration_behavior' => 'create_prorations'
+        'subscription_proration_behavior' => 'create_prorations'
     ]);
-    $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-    $stmt->execute([$amount, $userId]);
-
-    // check invoice status
-    $invoiceId = $updated->latest_invoice;
-    $invoicePaid = false;
-    if ($invoiceId) {
-        $invoice = \Stripe\Invoice::retrieve($invoiceId);
-        $invoicePaid = ($invoice->status === 'paid');
-    }
+    $amountDue = $invoice->amount_due / 100; // convert from cents
 } catch (Exception $e) {
-
-    log_subscription('Stripe error updating ' . $subscriptionId . ': ' . $e->getMessage());
-
+    log_subscription('Stripe error confirm_upgrade ' . $e->getMessage());
     http_response_code(500);
     exit('Stripe error');
 }
-
-$status = isset($invoicePaid) ? ($invoicePaid ? 'success' : 'pending') : 'error';
-header('Location: manage_subscription.php?update=' . $status);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Upgrade</title>
+</head>
+<body>
+<h1>Confirm Plan Change</h1>
+<p>You are upgrading to <?php echo htmlspecialchars(number_format($amount)); ?> Gasergy/month.</p>
+<p>This upgrade will charge your saved payment method <strong>$<?php echo number_format($amountDue, 2); ?></strong> immediately for the prorated difference.</p>
+<form action="update_subscription.php" method="POST" style="display:inline-block;margin-right:1em;">
+    <input type="hidden" name="amount" value="<?php echo htmlspecialchars($amount); ?>">
+    <button type="submit">Confirm Charge</button>
+</form>
+<form action="manage_subscription.php" method="GET" style="display:inline-block;">
+    <button type="submit">Cancel</button>
+</form>
+</body>
+</html>

@@ -34,8 +34,7 @@ register_shutdown_function(function () {
     }
 });
 
-log_subscription('update_subscription start user=' . ($_SESSION['user_id'] ?? 'none'));
-
+log_subscription('update_payment start user=' . ($_SESSION['user_id'] ?? 'none'));
 
 if (!isset($_SESSION['user_id'])) {
     log_subscription('unauthorized access');
@@ -43,23 +42,10 @@ if (!isset($_SESSION['user_id'])) {
     exit('Unauthorized');
 }
 
-$amount = intval($_POST['amount'] ?? 0);
-$priceId = priceForGasergy($amount);
-if ($amount <= 0 || !$priceId) {
-    log_subscription('invalid plan amount=' . $amount);
-    http_response_code(400);
-    exit('Invalid plan');
-}
-
-log_subscription('requested amount=' . $amount . ' priceId=' . ($priceId ?: 'none'));
-
-
 $userId = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT stripe_subscription_id FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $subscriptionId = $stmt->fetchColumn();
-
-log_subscription('db subscription id=' . ($subscriptionId ?: 'none') . ' for user=' . $userId);
 
 if (!$subscriptionId) {
     log_subscription('no subscription for user=' . $userId);
@@ -70,34 +56,15 @@ if (!$subscriptionId) {
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 try {
     $subscription = \Stripe\Subscription::retrieve($subscriptionId);
-
-    log_subscription('Stripe retrieved subscription id=' . $subscriptionId);
-
-    $itemId = $subscription->items->data[0]->id;
-    $updated = \Stripe\Subscription::update($subscriptionId, [
-        'cancel_at_period_end' => false,
-        'items' => [
-            ['id' => $itemId, 'price' => $priceId]
-        ],
-        'proration_behavior' => 'create_prorations'
+    $customerId = $subscription->customer;
+    $session = \Stripe\BillingPortal\Session::create([
+        'customer' => $customerId,
+        'return_url' => '/gasergy/manage_subscription.php'
     ]);
-    $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-    $stmt->execute([$amount, $userId]);
-
-    // check invoice status
-    $invoiceId = $updated->latest_invoice;
-    $invoicePaid = false;
-    if ($invoiceId) {
-        $invoice = \Stripe\Invoice::retrieve($invoiceId);
-        $invoicePaid = ($invoice->status === 'paid');
-    }
+    header('Location: ' . $session->url);
+    exit;
 } catch (Exception $e) {
-
-    log_subscription('Stripe error updating ' . $subscriptionId . ': ' . $e->getMessage());
-
+    log_subscription('Stripe error update_payment ' . $e->getMessage());
     http_response_code(500);
     exit('Stripe error');
 }
-
-$status = isset($invoicePaid) ? ($invoicePaid ? 'success' : 'pending') : 'error';
-header('Location: manage_subscription.php?update=' . $status);
