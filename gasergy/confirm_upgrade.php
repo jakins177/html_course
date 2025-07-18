@@ -14,14 +14,10 @@ function log_subscription($msg) {
     }
 }
 log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'));
+require_once __DIR__ . '/../auth-system/login_check.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
-
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(403);
-    exit('Unauthorized');
-}
 
 $amount = intval($_POST['amount'] ?? 0);
 $priceId = priceForGasergy($amount);
@@ -47,19 +43,17 @@ try {
     log_subscription('retrieved subscription id=' . $subscriptionId);
 
     $itemId = $subscription->items->data[0]->id;
-
-    log_subscription('subscription item id=' . $itemId);
     // Estimate proration cost using upcoming invoice
-    $params = [
+    $invoice = \Stripe\Invoice::upcoming([
         'customer' => $subscription->customer,
-        'subscription' => $subscriptionId,
-        'subscription_items' => [
-            ['id' => $itemId, 'price' => $priceId]
-        ],
-        'subscription_proration_behavior' => 'create_prorations'
-    ];
-    log_subscription('upcoming invoice params=' . json_encode($params, JSON_PRETTY_PRINT));
-    $invoice = \Stripe\Invoice::upcoming($params);
+        'subscription_details' => [
+            'subscription' => $subscriptionId,
+            'items' => [
+                ['id' => $itemId, 'price' => $priceId]
+            ],
+            'proration_behavior' => 'create_prorations'
+        ]
+    ]);
     $amountDue = $invoice->amount_due / 100; // convert from cents
 
     log_subscription('upcoming invoice amount=' . $amountDue);
