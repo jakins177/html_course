@@ -542,8 +542,8 @@
                 <li>Include proper metadata for SEO</li>
             </ul>
             <h3>Skills Applied:</h3>
-            <ul>
-                <li>Semantic HTML structure</li>
+            <ul> 
+                <li>Semantic HIYA HTML structure</li>
                 <li>Accessibility implementation</li>
                 <li>Form creation</li>
                 <li>Metadata and SEO basics</li>
