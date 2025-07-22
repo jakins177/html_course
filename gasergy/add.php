@@ -1,13 +1,15 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/add.log');
+
 session_start();
 require_once __DIR__ . '/../auth-system/config/db.php';
 
-$logFile = __DIR__ . '/add_debug.log';
-file_put_contents($logFile, date('c') . " add.php started\n", FILE_APPEND);
-
 // ✅ Check session
 if (!isset($_SESSION['user_id'])) {
-    file_put_contents($logFile, "Unauthorized access attempt\n", FILE_APPEND);
     http_response_code(403);
     exit('Unauthorized');
 }
