@@ -1,19 +1,11 @@
 <?php
-session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/confirm_upgrade.log');
 
-$logFile = __DIR__ . '/subscription.log';
-if (!file_exists($logFile)) {
-    @touch($logFile);
-}
-function log_subscription($msg) {
-    global $logFile;
-    if (is_writable($logFile)) {
-        file_put_contents($logFile, date('c') . ' ' . $msg . PHP_EOL, FILE_APPEND);
-    } else {
-        error_log('log_subscription failed: ' . $msg);
-    }
-}
-log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'));
+session_start();
 require_once __DIR__ . '/../auth-system/login_check.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';

@@ -1,38 +1,9 @@
 <?php
-// TEMPORARY: Enable full error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-ini_set('display_errors', 1); // Display errors to the browser
-// For production, you'd likely use:
-// ini_set('log_errors', 1);
-// ini_set('error_log', __DIR__ . '/php_error.log'); // Ensure this path is writable
-
-$logFile = __DIR__ . '/checkout.log';
-
-// Attempt to create the log file if it doesn't exist and check writability
-if (!file_exists($logFile)) {
-    if (!touch($logFile)) {
-        error_log("Error: Log file checkout.log could not be created. Check permissions for directory " . __DIR__);
-        // Optionally, exit or handle this error visibly if logging is critical
-    }
-}
-if (!is_writable($logFile)) {
-    error_log("Error: Log file checkout.log is not writable. Check permissions for " . $logFile);
-    // Optionally, exit or handle this error visibly
-}
-
-function log_checkout($msg) {
-    global $logFile;
-    // Ensure the directory is writable before attempting to log
-    if (is_writable($logFile)) {
-        file_put_contents($logFile, date('c') . ' ' . $msg . PHP_EOL, FILE_APPEND);
-    } else {
-        // Fallback error logging if file_put_contents fails
-        error_log("log_checkout failed: Log file $logFile is not writable. Message: $msg");
-    }
-}
-
-// Log script entry immediately
-log_checkout('Script execution started. PHP error reporting enabled for debugging.');
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/create_checkout_session.log');
 
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';

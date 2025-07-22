@@ -1,9 +1,13 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/get.log');
+
 session_start();
-file_put_contents(__DIR__ . '/get_debug.log', date('c') . " get.php\n", FILE_APPEND);
 
 if (!isset($_SESSION['user_id'])) {
-    file_put_contents(__DIR__ . '/get_debug.log', "Not logged in\n", FILE_APPEND);
     header('Location: /auth-system/frt_login.php');
     exit;
 }
