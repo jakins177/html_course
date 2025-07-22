@@ -14,14 +14,10 @@ function log_subscription($msg) {
     }
 }
 log_subscription('confirm_upgrade start user=' . ($_SESSION['user_id'] ?? 'none'));
+require_once __DIR__ . '/../auth-system/login_check.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
-
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(403);
-    exit('Unauthorized');
-}
 
 $amount = intval($_POST['amount'] ?? 0);
 $priceId = priceForGasergy($amount);
