@@ -10,6 +10,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
 
+function log_subscription($msg) {
+    error_log($msg);
+}
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(403);
