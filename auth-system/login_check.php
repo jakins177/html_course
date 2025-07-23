@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Determine the root directory of the application (one level above this file)
 $appRoot = dirname(__DIR__);

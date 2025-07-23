@@ -40,15 +40,13 @@ try {
 
     $itemId = $subscription->items->data[0]->id;
     // Estimate proration cost using upcoming invoice
-    $invoice = \Stripe\Invoice::upcoming([
+    $invoice = \Stripe\Invoice::createPreview([
         'customer' => $subscription->customer,
-        'subscription_details' => [
-            'subscription' => $subscriptionId,
-            'items' => [
-                ['id' => $itemId, 'price' => $priceId]
-            ],
-            'proration_behavior' => 'create_prorations'
-        ]
+        'subscription' => $subscriptionId,
+        'subscription_items' => [
+            ['id' => $itemId, 'price' => $priceId]
+        ],
+        'subscription_proration_behavior' => 'create_prorations'
     ]);
     $amountDue = $invoice->amount_due / 100; // convert from cents
 
