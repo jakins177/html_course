@@ -43,8 +43,10 @@ try {
     $invoice = \Stripe\Invoice::createPreview([
         'customer' => $subscription->customer,
         'subscription' => $subscriptionId,
-        'subscription_items' => [
-            ['id' => $itemId, 'price' => $priceId]
+        'subscription_details' => [
+            'items' => [
+                ['id' => $itemId, 'price' => $priceId]
+            ],
         ],
         'subscription_proration_behavior' => 'create_prorations'
     ]);
