@@ -9,6 +9,10 @@ session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/stripe.php';
 
+function log_checkout($msg) {
+    error_log($msg);
+}
+
 $baseUrl = rtrim(getenv('BASE_URL') ?: '', '/');
 
 log_checkout('start user=' . ($_SESSION['user_id'] ?? 'none') . ' amount=' . ($_POST['amount'] ?? ''));
