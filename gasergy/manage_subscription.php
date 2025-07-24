@@ -68,7 +68,7 @@ if ($userSub) {
     $status = htmlspecialchars($subscription->status);
     $nextBilling = date('Y-m-d', $subscription->current_period_end);
     ?>
-    <p>Current plan: <?php echo htmlspecialchars(number_format($currentGasergy)); ?> Gasergy/month</p>
+    <p>Current plan: <?php echo $currentGasergy ? htmlspecialchars(number_format($currentGasergy)) . ' Gasergy/month' : 'Unknown'; ?></p>
     <p>Status: <?php echo $status; ?></p>
     <p>Next billing date: <?php echo $nextBilling; ?></p>
     <h2>Change Plan</h2>
