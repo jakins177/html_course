@@ -102,6 +102,35 @@ switch ($event->type) {
         break;
 
         default:
+    case 'invoice.created':
+        $invoice = $event->data->object;
+        $subscriptionId = $invoice->subscription;
+        $userId = null;
+        if ($subscriptionId) {
+            $stmt = $pdo->prepare("SELECT id, subscription_gasergy FROM users WHERE stripe_subscription_id = ?");
+            $stmt->execute([$subscriptionId]);
+            $user = $stmt->fetch();
+        }
+
+        if ($user) {
+            $userId = $user['id'];
+            $oldGasergy = $user['subscription_gasergy'];
+            $newGasergy = 0;
+            foreach ($invoice->lines->data as $line) {
+                if ($line->type === 'subscription' && isset($line->price->id)) {
+                    $newGasergy = gasergyForPrice($line->price->id) ?? 0;
+                    break;
+                }
+            }
+
+            if ($newGasergy > $oldGasergy) {
+                $gasergyDifference = $newGasergy - $oldGasergy;
+                $stmt = $pdo->prepare("UPDATE users SET gasergy_balance = gasergy_balance + ? WHERE id = ?");
+                $stmt->execute([$gasergyDifference, $userId]);
+            }
+        }
+        break;
+        default:
         file_put_contents($logFile,
             "Unhandled event {$event->type}\n", FILE_APPEND);
 }
