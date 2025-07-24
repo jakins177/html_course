@@ -58,27 +58,38 @@ switch ($event->type) {
         );
         break;
     case 'invoice.paid':
-        // add monthly Gasergy credits for the user
+        // add monthly Gasergy credits based on the invoice line item
         $invoice = $event->data->object;
         $subscriptionId = $invoice->subscription;
-        $stmt = $pdo->prepare(
-            "SELECT id, subscription_gasergy FROM users WHERE stripe_subscription_id = ?"
-        );
-        $stmt->execute([$subscriptionId]);
-        $row = $stmt->fetch();
-        if ($row) {
-            $amount = intval($row['subscription_gasergy']);
-            if ($amount > 0) {
-                $stmt = $pdo->prepare(
-                    "UPDATE users SET gasergy_balance = gasergy_balance + ? WHERE id = ?"
-                );
-                $stmt->execute([$amount, $row['id']]);
+
+        // Determine the plan from the invoice lines
+        $gasergyAmount = 0;
+        foreach ($invoice->lines->data as $line) {
+            if ($line->type === 'subscription' && isset($line->price->id)) {
+                $gasergyAmount = gasergyForPrice($line->price->id) ?? 0;
+                break;
             }
         }
-        $userLog = $row ? $row['id'] : 'n/a';
+
+        $userId = null;
+        if ($subscriptionId) {
+            $stmt = $pdo->prepare(
+                "SELECT id FROM users WHERE stripe_subscription_id = ?"
+            );
+            $stmt->execute([$subscriptionId]);
+            $userId = $stmt->fetchColumn();
+        }
+
+        if ($userId && $gasergyAmount > 0) {
+            $stmt = $pdo->prepare(
+                "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
+            );
+            $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
+        }
+
         file_put_contents(
             $logFile,
-            "invoice.paid: subscription={$subscriptionId} user={$userLog}\n",
+            "invoice.paid: subscription={$subscriptionId} user=" . ($userId ?: 'n/a') . " gasergy={$gasergyAmount}\n",
             FILE_APPEND
         );
         break;
