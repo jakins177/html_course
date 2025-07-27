@@ -23,10 +23,6 @@ try {
     exit('Invalid signature');
 }
 
-if ($event->type === 'checkout.session.completed') {
-
-}
-
 // At the top, define the log file
 $logFile = __DIR__ . '/webhook.log';
 file_put_contents($logFile, date('c') . " webhook received\n", FILE_APPEND);
@@ -95,13 +91,15 @@ switch ($event->type) {
         break;
     case 'invoice.payment_failed':
         $invoice = $event->data->object;
-        file_put_contents($logFile,
+        file_put_contents(
+            $logFile,
             "invoice.payment_failed: subscription={$invoice->subscription} " .
-            "customer={$invoice->customer}\n", FILE_APPEND);
+            "customer={$invoice->customer}\n",
+            FILE_APPEND
+        );
         // notify the user or pause benefits
         break;
 
-        default:
     case 'invoice.created':
         $invoice = $event->data->object;
         $subscriptionId = $invoice->subscription;
@@ -130,9 +128,13 @@ switch ($event->type) {
             }
         }
         break;
-        default:
-        file_put_contents($logFile,
-            "Unhandled event {$event->type}\n", FILE_APPEND);
+
+    default:
+        file_put_contents(
+            $logFile,
+            "Unhandled event {$event->type}\n",
+            FILE_APPEND
+        );
 }
 
 http_response_code(200);
