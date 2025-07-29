@@ -55,8 +55,7 @@ try {
         ],
         'proration_behavior' => 'create_prorations'
     ]);
-    $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-    $stmt->execute([$amount, $userId]);
+    // The user's plan will be updated in webhook.php after the invoice is paid
 
     // check invoice status
     $invoiceId = $updated->latest_invoice;
