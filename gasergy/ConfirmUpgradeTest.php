@@ -10,7 +10,6 @@ require_once __DIR__ . '/../config/stripe.php';
 
 class ConfirmUpgradeTest extends \PHPUnit\Framework\TestCase
 {
-
     protected $pdo;
 
     protected function setUp(): void
@@ -42,28 +41,6 @@ class ConfirmUpgradeTest extends \PHPUnit\Framework\TestCase
 
     public function testConfirmUpgrade()
     {
-        // Create a mock subscription object
-        $mockSubscription = $this->createMock(\Stripe\Subscription::class);
-        $mockSubscription->items = $this->createMock(\Stripe\Collection::class);
-        $mockSubscription->items->data = [
-            (object) [
-                'id' => 'si_test123',
-                'price' => (object) [
-                    'id' => 'price_1Hh1g2EANpY2Fj3e5f4gY3jH'
-                ]
-            ]
-        ];
-
-        // Mock the \Stripe\Subscription::retrieve method
-        $builder = new \phpmock\MockBuilder();
-        $builder->setNamespace('Stripe')
-                ->setName('Subscription')
-                ->setFunction(function () use ($mockSubscription) {
-                    return $mockSubscription;
-                });
-        $mock = $builder->build();
-        $mock->enable();
-
         // Simulate a POST request
         $_POST['amount'] = 500;
 
