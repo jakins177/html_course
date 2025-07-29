@@ -85,11 +85,24 @@ switch ($event->type) {
                 );
                 $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
             } elseif ($billingReason === 'subscription_update') {
-                // Upgrade invoice already handled; just record the new plan
-                $stmt = $pdo->prepare(
-                    "UPDATE users SET subscription_gasergy = ? WHERE id = ?"
-                );
-                $stmt->execute([$gasergyAmount, $userId]);
+                // Prorated upgrade, grant gasergy for the partial month
+                $stmt = $pdo->prepare("SELECT subscription_gasergy FROM users WHERE id = ?");
+                $stmt->execute([$userId]);
+                $oldGasergy = $stmt->fetchColumn();
+
+                if ($gasergyAmount > $oldGasergy) {
+                    $gasergyDifference = $gasergyAmount - $oldGasergy;
+                    $updateStmt = $pdo->prepare(
+                        "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
+                    );
+                    $updateStmt->execute([$gasergyDifference, $gasergyAmount, $userId]);
+                } else {
+                    // downgrade or same plan, just update the plan size
+                    $updateStmt = $pdo->prepare(
+                        "UPDATE users SET subscription_gasergy = ? WHERE id = ?"
+                    );
+                    $updateStmt->execute([$gasergyAmount, $userId]);
+                }
             }
         }
 
@@ -111,32 +124,14 @@ switch ($event->type) {
         break;
 
     case 'invoice.created':
+        // just log for now
         $invoice = $event->data->object;
-        $subscriptionId = $invoice->subscription;
-        $userId = null;
-        if ($subscriptionId) {
-            $stmt = $pdo->prepare("SELECT id, subscription_gasergy FROM users WHERE stripe_subscription_id = ?");
-            $stmt->execute([$subscriptionId]);
-            $user = $stmt->fetch();
-        }
-
-        if ($user) {
-            $userId = $user['id'];
-            $oldGasergy = $user['subscription_gasergy'];
-            $newGasergy = 0;
-            foreach ($invoice->lines->data as $line) {
-                if ($line->type === 'subscription' && isset($line->price->id)) {
-                    $newGasergy = gasergyForPrice($line->price->id) ?? 0;
-                    break;
-                }
-            }
-
-            if ($newGasergy > $oldGasergy) {
-                $gasergyDifference = $newGasergy - $oldGasergy;
-                $stmt = $pdo->prepare("UPDATE users SET gasergy_balance = gasergy_balance + ? WHERE id = ?");
-                $stmt->execute([$gasergyDifference, $userId]);
-            }
-        }
+        file_put_contents(
+            $logFile,
+            "invoice.created: subscription={$invoice->subscription} " .
+            "customer={$invoice->customer} reason={$invoice->billing_reason}\n",
+            FILE_APPEND
+        );
         break;
 
     default:
