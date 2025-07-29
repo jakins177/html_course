@@ -55,9 +55,11 @@ try {
         ],
         'proration_behavior' => 'create_prorations'
     ]);
+
     // The webhook will normally update the plan after the invoice is paid, but
     // if no charge is due, Stripe marks the invoice paid immediately and no
     // webhook may arrive. In that case, update the user record right away.
+
 
     // check invoice status
     $invoiceId = $updated->latest_invoice;
