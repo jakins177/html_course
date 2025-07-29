@@ -54,9 +54,10 @@ switch ($event->type) {
         );
         break;
     case 'invoice.paid':
-        // add monthly Gasergy credits based on the invoice line item
+        // handle subscription invoices
         $invoice = $event->data->object;
         $subscriptionId = $invoice->subscription;
+        $billingReason = $invoice->billing_reason ?? '';
 
         // Determine the plan from the invoice lines
         $gasergyAmount = 0;
@@ -77,15 +78,24 @@ switch ($event->type) {
         }
 
         if ($userId && $gasergyAmount > 0) {
-            $stmt = $pdo->prepare(
-                "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
-            );
-            $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
+            if ($billingReason === 'subscription_cycle' || $billingReason === 'subscription_create') {
+                // Regular monthly invoice – add credits and record plan size
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
+                );
+                $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
+            } elseif ($billingReason === 'subscription_update') {
+                // Upgrade invoice already handled; just record the new plan
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET subscription_gasergy = ? WHERE id = ?"
+                );
+                $stmt->execute([$gasergyAmount, $userId]);
+            }
         }
 
         file_put_contents(
             $logFile,
-            "invoice.paid: subscription={$subscriptionId} user=" . ($userId ?: 'n/a') . " gasergy={$gasergyAmount}\n",
+            "invoice.paid: subscription={$subscriptionId} user=" . ($userId ?: 'n/a') . " gasergy={$gasergyAmount} reason={$billingReason}\n",
             FILE_APPEND
         );
         break;

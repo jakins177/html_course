@@ -55,15 +55,35 @@ try {
         ],
         'proration_behavior' => 'create_prorations'
     ]);
-    $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-    $stmt->execute([$amount, $userId]);
+    // The webhook will normally update the plan after the invoice is paid, but
+    // if no charge is due, Stripe marks the invoice paid immediately and no
+    // webhook may arrive. In that case, update the user record right away.
 
     // check invoice status
     $invoiceId = $updated->latest_invoice;
     $invoicePaid = false;
+    $invoiceDue = null;
     if ($invoiceId) {
         $invoice = \Stripe\Invoice::retrieve($invoiceId);
         $invoicePaid = ($invoice->status === 'paid');
+        $invoiceDue = $invoice->amount_due;
+    }
+
+    if ($invoicePaid && ($invoiceDue === 0 || $invoiceDue === null)) {
+        // Immediate plan change with no charge. Apply upgrade locally.
+        $stmt = $pdo->prepare("SELECT subscription_gasergy FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $oldGasergy = (int)($stmt->fetchColumn() ?: 0);
+        $diff = $amount - $oldGasergy;
+        if ($diff > 0) {
+            $stmt = $pdo->prepare(
+                "UPDATE users SET subscription_gasergy = ?, gasergy_balance = gasergy_balance + ? WHERE id = ?"
+            );
+            $stmt->execute([$amount, $diff, $userId]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
+            $stmt->execute([$amount, $userId]);
+        }
     }
 } catch (Exception $e) {
 
