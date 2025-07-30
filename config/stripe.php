@@ -14,13 +14,13 @@ $stripeWebhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_placeholder';
 // mapping keys must be the numeric amounts rather than plan names.
 $gasergyPrices = [
     // Starter – $2.50 for 500 Gasergy
-    500    => 'price_1RcBfNGUmegTY8R1cATII8Yy',
+    500    => 'price_1RqQouGUmegTY8R1SU4OEqux',
     // Professional – $10 for 2 500 Gasergy
-    2500   => 'price_1RcBfNGUmegTY8R1gZsObwZO',
+    2500   => 'price_1RqQs3GUmegTY8R1jLuIcTIm',
     // Business – $30 for 10 000 Gasergy
-    10000  => 'price_1RcBfNGUmegTY8R13ub5OXoC',
+    10000  => 'price_1RqQtCGUmegTY8R1REE2fK5p',
     // Enterprise – $125 for 50 000 Gasergy
-    50000  => 'price_1RcBfNGUmegTY8R1HjuXKFzH',
+    50000  => 'price_1RqQy3GUmegTY8R1bvSMgYYG',
 ];
 
 function priceForGasergy(int $amount): ?string {

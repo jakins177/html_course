@@ -75,9 +75,9 @@ if ($userSub) {
     <form action="confirm_upgrade.php" method="POST">
         <select name="amount">
             <option value="500">Starter - 500 Gasergy/month</option>
-            <option value="2500">Professional - 2 500 Gasergy/month</option>
-            <option value="10000">Business - 10 000 Gasergy/month</option>
-            <option value="50000">Enterprise - 50 000 Gasergy/month</option>
+            <option value="2500">Professional - 2,500 Gasergy/month</option>
+            <option value="10000">Business - 10,000 Gasergy/month</option>
+            <option value="50000">Enterprise - 50,000 Gasergy/month</option>
         </select>
         <button type="submit">Update</button>
     </form>
