@@ -59,7 +59,7 @@ try {
             'items' => [
                 ['id' => $itemId, 'price' => $priceId]
             ],
-            'proration_behavior' => 'create_prorations',
+            'proration_behavior' => 'always_invoice',
         ],
     ]);
     $amountDue = $invoice->amount_due / 100; // convert from cents

@@ -48,45 +48,19 @@ try {
     log_subscription('Stripe retrieved subscription id=' . $subscriptionId);
 
     $itemId = $subscription->items->data[0]->id;
-    $updated = \Stripe\Subscription::update($subscriptionId, [
+    \Stripe\Subscription::update($subscriptionId, [
         'cancel_at_period_end' => false,
         'items' => [
             ['id' => $itemId, 'price' => $priceId]
         ],
-        'proration_behavior' => 'create_prorations'
+        'proration_behavior' => 'always_invoice',
+        'payment_behavior' => 'pending_if_incomplete'
     ]);
 
-    // The webhook will normally update the plan after the invoice is paid, but
-    // if no charge is due, Stripe marks the invoice paid immediately and no
-    // webhook may arrive. In that case, update the user record right away.
+    // The webhook will handle all subscription updates, including plan
+    // changes. This ensures that gasergy is added only after a successful
+    // payment.
 
-
-    // check invoice status
-    $invoiceId = $updated->latest_invoice;
-    $invoicePaid = false;
-    $invoiceDue = null;
-    if ($invoiceId) {
-        $invoice = \Stripe\Invoice::retrieve($invoiceId);
-        $invoicePaid = ($invoice->status === 'paid');
-        $invoiceDue = $invoice->amount_due;
-    }
-
-    if ($invoicePaid && ($invoiceDue === 0 || $invoiceDue === null)) {
-        // Immediate plan change with no charge. Apply upgrade locally.
-        $stmt = $pdo->prepare("SELECT subscription_gasergy FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $oldGasergy = (int)($stmt->fetchColumn() ?: 0);
-        $diff = $amount - $oldGasergy;
-        if ($diff > 0) {
-            $stmt = $pdo->prepare(
-                "UPDATE users SET subscription_gasergy = ?, gasergy_balance = gasergy_balance + ? WHERE id = ?"
-            );
-            $stmt->execute([$amount, $diff, $userId]);
-        } else {
-            $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-            $stmt->execute([$amount, $userId]);
-        }
-    }
 } catch (Exception $e) {
 
     log_subscription('Stripe error updating ' . $subscriptionId . ': ' . $e->getMessage());
@@ -95,5 +69,4 @@ try {
     exit('Stripe error');
 }
 
-$status = isset($invoicePaid) ? ($invoicePaid ? 'success' : 'pending') : 'error';
-header('Location: manage_subscription.php?update=' . $status);
+header('Location: manage_subscription.php?update=success');
