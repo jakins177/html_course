@@ -48,8 +48,14 @@ try {
     log_subscription('Stripe retrieved subscription id=' . $subscriptionId);
 
     $itemId = $subscription->items->data[0]->id;
+
+    // First, ensure the subscription is not set to be cancelled
     \Stripe\Subscription::update($subscriptionId, [
         'cancel_at_period_end' => false,
+    ]);
+
+    // Then, update the price and charge immediately
+    \Stripe\Subscription::update($subscriptionId, [
         'items' => [
             ['id' => $itemId, 'price' => $priceId]
         ],
