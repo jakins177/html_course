@@ -55,7 +55,8 @@ switch ($event->type) {
         break;
     case 'invoice.paid':
         // handle subscription invoices
-        $invoice = $event->data->object;
+        $invoice_id = $event->data->object->id;
+        $invoice = \Stripe\Invoice::retrieve($invoice_id);
         $subscriptionId = $invoice->subscription;
         $billingReason = $invoice->billing_reason ?? '';
 
