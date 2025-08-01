@@ -87,25 +87,6 @@ switch ($event->type) {
                     "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
                 );
                 $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
-            } elseif ($billingReason === 'subscription_update') {
-                // Prorated upgrade, grant gasergy for the partial month
-                $stmt = $pdo->prepare("SELECT subscription_gasergy FROM users WHERE id = ?");
-                $stmt->execute([$userId]);
-                $oldGasergy = $stmt->fetchColumn();
-
-                if ($gasergyAmount > $oldGasergy) {
-                    $gasergyDifference = $gasergyAmount - $oldGasergy;
-                    $updateStmt = $pdo->prepare(
-                        "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
-                    );
-                    $updateStmt->execute([$gasergyDifference, $gasergyAmount, $userId]);
-                } else {
-                    // downgrade or same plan, just update the plan size
-                    $updateStmt = $pdo->prepare(
-                        "UPDATE users SET subscription_gasergy = ? WHERE id = ?"
-                    );
-                    $updateStmt->execute([$gasergyAmount, $userId]);
-                }
             }
         }
 
