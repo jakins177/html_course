@@ -9,6 +9,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../auth-system/config/db.php';
 require_once __DIR__ . '/../config/stripe.php';
 
+\Stripe\Stripe::setApiKey($stripeSecretKey);
+
 $payload = @file_get_contents('php://input');
 $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
