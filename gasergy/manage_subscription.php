@@ -29,11 +29,23 @@ log_subscription('db subscription id=' . ($userSub ?: 'none') . ' for user=' . $
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 $subscription = null;
+$upcomingInvoice = null;
 if ($userSub) {
     try {
         $subscription = \Stripe\Subscription::retrieve($userSub);
 
         log_subscription('Stripe subscription retrieved id=' . $userSub);
+
+        try {
+            $upcomingInvoice = \Stripe\Invoice::upcoming([
+                'customer' => $subscription->customer,
+                'subscription' => $subscription->id
+            ]);
+            log_subscription('Upcoming invoice retrieved for subscription=' . $subscription->id);
+        } catch (Exception $e) {
+            log_subscription('Stripe error retrieving upcoming invoice for ' . $userSub . ': ' . $e->getMessage());
+            $upcomingInvoice = null;
+        }
     } catch (Exception $e) {
         log_subscription('Stripe error retrieving ' . $userSub . ': ' . $e->getMessage());
         $subscription = null;
@@ -66,11 +78,20 @@ if ($userSub) {
     $currentPriceId = $item->price->id;
     $currentGasergy = gasergyForPrice($currentPriceId);
     $status = htmlspecialchars($subscription->status);
-    $nextBilling = date('Y-m-d', $subscription->current_period_end);
+
+    $nextBilling = null;
+    if (!$subscription->cancel_at_period_end && $upcomingInvoice) {
+        $timestamp = $upcomingInvoice->next_payment_attempt ?? $upcomingInvoice->period_end ?? null;
+        if ($timestamp) {
+            $nextBilling = gmdate('Y-m-d', $timestamp);
+        }
+    }
     ?>
     <p>Current plan: <?php echo $currentGasergy ? htmlspecialchars(number_format($currentGasergy)) . ' Gasergy/month' : 'Unknown'; ?></p>
     <p>Status: <?php echo $status; ?></p>
-    <p>Next billing date: <?php echo $nextBilling; ?></p>
+    <?php if ($nextBilling): ?>
+        <p>Next billing date: <?php echo $nextBilling; ?></p>
+    <?php endif; ?>
     <h2>Change Plan</h2>
     <form action="confirm_upgrade.php" method="POST">
         <select name="amount">
