@@ -37,11 +37,13 @@ if ($userSub) {
         log_subscription('Stripe subscription retrieved id=' . $userSub);
 
         try {
+
             $upcomingInvoice = \Stripe\Invoice::createPreview([
                 'customer' => $subscription->customer,
                 'subscription' => $subscription->id
             ]);
             log_subscription('Upcoming invoice preview created for subscription=' . $subscription->id);
+]
         } catch (Exception $e) {
             log_subscription('Stripe error retrieving upcoming invoice for ' . $userSub . ': ' . $e->getMessage());
             $upcomingInvoice = null;
