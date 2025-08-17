@@ -28,6 +28,15 @@ log_subscription('db subscription id=' . ($userSub ?: 'none') . ' for user=' . $
 
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
+$accountTimezone = 'UTC';
+try {
+    $account = \Stripe\Account::retrieve();
+    if (!empty($account->timezone)) {
+        $accountTimezone = $account->timezone;
+    }
+} catch (Exception $e) {
+    log_subscription('Stripe error retrieving account: ' . $e->getMessage());
+}
 $subscription = null;
 $upcomingInvoice = null;
 if ($userSub) {
@@ -83,7 +92,13 @@ if ($userSub) {
     if (!$subscription->cancel_at_period_end && $upcomingInvoice) {
         $timestamp = $upcomingInvoice->next_payment_attempt ?? $upcomingInvoice->period_end ?? null;
         if ($timestamp) {
-            $nextBilling = gmdate('Y-m-d', $timestamp);
+            $dt = new DateTime('@' . $timestamp);
+            try {
+                $dt->setTimezone(new DateTimeZone($accountTimezone));
+            } catch (Exception $e) {
+                $dt->setTimezone(new DateTimeZone('UTC'));
+            }
+            $nextBilling = $dt->format('Y-m-d');
         }
     }
     ?>
