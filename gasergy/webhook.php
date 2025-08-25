@@ -55,7 +55,7 @@ switch ($event->type) {
             FILE_APPEND
         );
         break;
-    case 'invoice.paid':
+    case 'invoice.payment_succeeded':
         // handle subscription invoices
         $invoice_id = $event->data->object->id;
         $invoice = \Stripe\Invoice::retrieve($invoice_id);
@@ -92,7 +92,7 @@ switch ($event->type) {
 
         file_put_contents(
             $logFile,
-            "invoice.paid: subscription={$subscriptionId} user=" . ($userId ?: 'n/a') . " gasergy={$gasergyAmount} reason={$billingReason}\n",
+            "invoice.payment_succeeded: subscription={$subscriptionId} user=" . ($userId ?: 'n/a') . " gasergy={$gasergyAmount} reason={$billingReason}\n",
             FILE_APPEND
         );
         break;
@@ -114,6 +114,66 @@ switch ($event->type) {
             $logFile,
             "invoice.created: subscription={$invoice->subscription} " .
             "customer={$invoice->customer} reason={$invoice->billing_reason}\n",
+            FILE_APPEND
+        );
+        break;
+
+    case 'customer.subscription.updated':
+        $subscription = $event->data->object;
+        $subscriptionId = $subscription->id;
+        $priceId = $subscription->items->data[0]->price->id ?? null;
+        $gasergyAmount = $priceId ? gasergyForPrice($priceId) : 0;
+        if ($gasergyAmount > 0) {
+            try {
+                $stmt = $pdo->prepare(
+                    "UPDATE users SET subscription_gasergy = ? WHERE stripe_subscription_id = ?"
+                );
+                $stmt->execute([$gasergyAmount, $subscriptionId]);
+            } catch (Exception $e) {
+                // log error in real setup
+            }
+        }
+        file_put_contents(
+            $logFile,
+            "customer.subscription.updated: subscription={$subscriptionId} gasergy={$gasergyAmount}\n",
+            FILE_APPEND
+        );
+        break;
+
+    case 'customer.subscription.deleted':
+        $subscription = $event->data->object;
+        $subscriptionId = $subscription->id;
+        try {
+            $stmt = $pdo->prepare(
+                "UPDATE users SET stripe_subscription_id = NULL, subscription_gasergy = NULL WHERE stripe_subscription_id = ?"
+            );
+            $stmt->execute([$subscriptionId]);
+        } catch (Exception $e) {
+            // log error in real setup
+        }
+        file_put_contents(
+            $logFile,
+            "customer.subscription.deleted: subscription={$subscriptionId}\n",
+            FILE_APPEND
+        );
+        break;
+
+    case 'payment_method.attached':
+    case 'payment_method.detached':
+        $pm = $event->data->object;
+        file_put_contents(
+            $logFile,
+            "{$event->type}: customer={$pm->customer} payment_method={$pm->id}\n",
+            FILE_APPEND
+        );
+        break;
+
+    case 'customer.updated':
+        $customer = $event->data->object;
+        $defaultPm = $customer->invoice_settings->default_payment_method ?? '';
+        file_put_contents(
+            $logFile,
+            "customer.updated: customer={$customer->id} default_pm={$defaultPm}\n",
             FILE_APPEND
         );
         break;

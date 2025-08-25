@@ -85,8 +85,6 @@ try {
     <input type="hidden" name="amount" value="<?php echo htmlspecialchars($amount); ?>">
     <button type="submit">Confirm Charge</button>
 </form>
-<form action="manage_subscription.php" method="GET" style="display:inline-block;">
-    <button type="submit">Cancel</button>
-</form>
+<button type="button" style="display:inline-block;" onclick="window.location.href='https://billing.stripe.com/p/login/test_00wbJ12SW34q2cK1O10sU00';">Cancel</button>
 </body>
 </html>
