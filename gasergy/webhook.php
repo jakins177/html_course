@@ -63,6 +63,14 @@ switch ($event->type) {
 
         // Determine the plan from the invoice lines
         $gasergyAmount = 0;
+        if (!$subscriptionId) {
+            foreach ($invoice->lines->data as $line) {
+                if (($line->type ?? '') === 'subscription' && !empty($line->subscription)) {
+                    $subscriptionId = $line->subscription;
+                    break;
+                }
+            }
+        }
         foreach ($invoice->lines->data as $line) {
             if (($line->type ?? '') === 'subscription' && isset($line->price->id)) {
                 $gasergyAmount = gasergyForPrice($line->price->id) ?? 0;
@@ -123,9 +131,10 @@ switch ($event->type) {
     case 'invoice.created':
         // just log for now
         $invoice = $event->data->object;
+        $subscriptionId = $invoice->subscription ?? 'n/a';
         file_put_contents(
             $logFile,
-            "invoice.created: subscription={$invoice->subscription} " .
+            "invoice.created: subscription={$subscriptionId} " .
             "customer={$invoice->customer} reason={$invoice->billing_reason}\n",
             FILE_APPEND
         );
