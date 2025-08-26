@@ -57,15 +57,14 @@ switch ($event->type) {
         break;
     case 'invoice.payment_succeeded':
         // handle subscription invoices
-        $invoice_id = $event->data->object->id;
-        $invoice = \Stripe\Invoice::retrieve($invoice_id);
-        $subscriptionId = $invoice->subscription;
+        $invoice = $event->data->object;
+        $subscriptionId = $invoice->subscription ?? null;
         $billingReason = $invoice->billing_reason ?? '';
 
         // Determine the plan from the invoice lines
         $gasergyAmount = 0;
         foreach ($invoice->lines->data as $line) {
-            if ($line->type === 'subscription' && isset($line->price->id)) {
+            if (($line->type ?? '') === 'subscription' && isset($line->price->id)) {
                 $gasergyAmount = gasergyForPrice($line->price->id) ?? 0;
                 break;
             }
