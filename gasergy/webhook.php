@@ -81,12 +81,20 @@ switch ($event->type) {
         }
 
         if ($userId && $gasergyAmount > 0) {
-            if ($billingReason === 'subscription_cycle' || $billingReason === 'subscription_create') {
-                // Regular monthly invoice – add credits and record plan size
+            if (in_array($billingReason, ['subscription_cycle', 'subscription_create', 'subscription_update'], true)) {
+                // Add credits and record plan size for new subscription, renewal, or upgrade
                 $stmt = $pdo->prepare(
                     "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
                 );
                 $stmt->execute([$gasergyAmount, $gasergyAmount, $userId]);
+
+                if ($billingReason === 'subscription_update') {
+                    file_put_contents(
+                        $logFile,
+                        "subscription upgrade applied: subscription={$subscriptionId} user={$userId} gasergy={$gasergyAmount}\n",
+                        FILE_APPEND
+                    );
+                }
             }
         }
 
