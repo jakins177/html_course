@@ -70,6 +70,12 @@ switch ($event->type) {
             }
         }
 
+        if ($gasergyAmount === 0 && $subscriptionId) {
+            $subscription = \Stripe\Subscription::retrieve($subscriptionId);
+            $priceId = $subscription->items->data[0]->price->id ?? null;
+            $gasergyAmount = $priceId ? gasergyForPrice($priceId) : 0;
+        }
+
         $userId = null;
         if ($subscriptionId) {
             $stmt = $pdo->prepare(
