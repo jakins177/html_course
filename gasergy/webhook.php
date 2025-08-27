@@ -92,7 +92,7 @@ switch ($event->type) {
         }
 
         if ($userId && $gasergyAmount > 0) {
-            if (in_array($billingReason, ['subscription_cycle', 'subscription_create', 'subscription_update'], true)) {
+            if (in_array($billingReason, ['subscription_cycle', 'subscription_update'], true)) {
                 // Add credits and record plan size for new subscription, renewal, or upgrade
                 $stmt = $pdo->prepare(
                     "UPDATE users SET gasergy_balance = gasergy_balance + ?, subscription_gasergy = ? WHERE id = ?"
