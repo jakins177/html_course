@@ -108,7 +108,7 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <p class="enterprise-note">Need &gt;10 000 Gasergy per month?
-    <a href="mailto:sales@example.com">Contact sales</a>
+    <a href="mailto:contact@palmtreesdigital.com">Contact sales</a>
     or <a href="#" id="show-enterprise">self-serve Enterprise</a>
   </p>
 
