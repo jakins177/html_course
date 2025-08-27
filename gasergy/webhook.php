@@ -35,14 +35,16 @@ switch ($event->type) {
         $userId = $session->client_reference_id;
         $amount = intval($session->metadata->amount ?? 0);
         $subscriptionId = $session->subscription;
+        $customerId = $session->customer;
 
         if ($userId && $amount > 0) {
             try {
                 $stmt = $pdo->prepare(
                     "UPDATE users SET gasergy_balance = gasergy_balance + ?, " .
-                    "stripe_subscription_id = ?, subscription_gasergy = ? WHERE id = ?"
+                    "stripe_subscription_id = ?, subscription_gasergy = ?, stripe_customer_id = ? " .
+                    "WHERE id = ?"
                 );
-                $stmt->execute([$amount, $subscriptionId, $amount, $userId]);
+                $stmt->execute([$amount, $subscriptionId, $amount, $customerId, $userId]);
             } catch (Exception $e) {
                 // log error in real setup
             }
@@ -58,19 +60,24 @@ switch ($event->type) {
     case 'invoice.payment_succeeded':
         // handle subscription invoices
         $invoice = $event->data->object;
-        $subscriptionId = $invoice->subscription ?? null;
+        $customerId = $invoice->customer;
         $billingReason = $invoice->billing_reason ?? '';
 
-        // Determine the plan from the invoice lines
+        $userId = null;
+        $subscriptionId = null;
         $gasergyAmount = 0;
-        if (!$subscriptionId) {
-            foreach ($invoice->lines->data as $line) {
-                if (($line->type ?? '') === 'subscription' && !empty($line->subscription)) {
-                    $subscriptionId = $line->subscription;
-                    break;
-                }
+
+        if ($customerId) {
+            $stmt = $pdo->prepare("SELECT id, stripe_subscription_id FROM users WHERE stripe_customer_id = ?");
+            $stmt->execute([$customerId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user) {
+                $userId = $user['id'];
+                $subscriptionId = $user['stripe_subscription_id'];
             }
         }
+
+        // Determine the plan from the invoice lines
         foreach ($invoice->lines->data as $line) {
             if (($line->type ?? '') === 'subscription' && isset($line->price->id)) {
                 $gasergyAmount = gasergyForPrice($line->price->id) ?? 0;
@@ -82,15 +89,6 @@ switch ($event->type) {
             $subscription = \Stripe\Subscription::retrieve($subscriptionId);
             $priceId = $subscription->items->data[0]->price->id ?? null;
             $gasergyAmount = $priceId ? gasergyForPrice($priceId) : 0;
-        }
-
-        $userId = null;
-        if ($subscriptionId) {
-            $stmt = $pdo->prepare(
-                "SELECT id FROM users WHERE stripe_subscription_id = ?"
-            );
-            $stmt->execute([$subscriptionId]);
-            $userId = $stmt->fetchColumn();
         }
 
         if ($userId && $gasergyAmount > 0) {
