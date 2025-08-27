@@ -1,4 +1,13 @@
 <?php require_once __DIR__ . '/../auth-system/login_check.php'; ?>
+<?php
+require_once __DIR__ . '/../auth-system/config/db.php';
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $balance = $stmt->fetchColumn();
+    echo "<p id='gasergy-balance-display'>Gasergy balance: ⚡ $balance</p>";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
