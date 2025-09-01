@@ -725,7 +725,7 @@ if (isset($_SESSION['user_id'])) {
           hideToggle: true,     // Hide toggle
           gasergy: {
             fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.php
-            // No balanceDisplaySelector for ai_chat as it's fullscreen and doesn't show balance.
+            balanceDisplaySelector: '#gasergy-balance-display', // Update balance in real time
             refillPath: '../gasergy/get.php',
             balancePath: '../gasergy/get_balance.php'
           }
