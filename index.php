@@ -1287,13 +1287,13 @@ if (isset($_SESSION['user_id'])) {
     <script src="assets/js/main-scripts.js"></script>
     <script type="module" src="assets/js/chat-logic.js"></script>
     <script type="module">
-      import { initializeN8NChat } from './assets/js/chat-logic.js';
+      import { initializeChatKit } from './assets/js/chat-logic.js';
 
       document.addEventListener('DOMContentLoaded', () => {
         // Initialize main scripts (like progress tracking) if it has its own init function,
         // or ensure it runs on DOMContentLoaded from within main-scripts.js itself.
         // For chat:
-        initializeN8NChat({
+        initializeChatKit({
           webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
           initialMessages: [
             'Welcome to the AI Master HTML Assistant!',
