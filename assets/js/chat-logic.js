@@ -1,8 +1,31 @@
 // assets/js/chat-logic.js
-import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+import * as ChatKitModule from 'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
 
-export function initializeN8NChat(config) {
-  createChat({
+function resolveChatKitInitializer(module) {
+  if (!module) {
+    throw new Error('ChatKit module failed to load.');
+  }
+
+  const candidates = [
+    module.initializeChatKit,
+    module.createChatKit,
+    module.createChat,
+    module.default,
+  ];
+
+  const initializer = candidates.find((candidate) => typeof candidate === 'function');
+
+  if (!initializer) {
+    throw new Error('Unable to find a ChatKit initializer in the loaded module.');
+  }
+
+  return initializer;
+}
+
+export function initializeChatKit(config) {
+  const initialize = resolveChatKitInitializer(ChatKitModule);
+
+  const chatOptions = {
     webhookUrl: config.webhookUrl,
     initialMessages: config.initialMessages,
     i18n: config.i18n,
@@ -10,7 +33,13 @@ export function initializeN8NChat(config) {
     mode: config.mode,
     autoOpen: config.autoOpen,
     hideToggle: config.hideToggle,
-  });
+  };
+
+  if (config.theme) {
+    chatOptions.theme = config.theme;
+  }
+
+  const chatInstance = initialize(chatOptions);
 
   if (config.gasergy) {
     const gasergyConfig = {
@@ -21,6 +50,8 @@ export function initializeN8NChat(config) {
     };
     initGasergyObserver(gasergyConfig, config.target);
   }
+
+  return chatInstance;
 }
 
 function disableChatInput(chatTargetSelectorForInput) {
