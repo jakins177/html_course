@@ -615,7 +615,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
     
     <!-- Removed legacy progress tracking and modal functions -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.css" rel="stylesheet" />
    
 
     <style>
@@ -626,7 +626,7 @@ if (isset($_SESSION['user_id'])) {
       height: 100%;
     }
 
-    #chat-root {
+    #chatkit-root {
       height: 100vh; /* Full screen height */
       width: 100vw;  /* Full screen width */
       overflow: hidden;
@@ -634,70 +634,66 @@ if (isset($_SESSION['user_id'])) {
 
     /* Optional: Override window size to make it use full screen */
     :root {
-      --chat--window--width: 100vw;
-      --chat--window--height: 100vh;
-      --chat--window--bottom: 0;
-      --chat--window--right: 0;
-      --chat--window--border-radius: 0;
+      --chatkit-window-width: 100vw;
+      --chatkit-window-height: 100vh;
+      --chatkit-window-bottom: 0;
+      --chatkit-window-right: 0;
+      --chatkit-window-border-radius: 0;
+
+      /* Maintain compatibility with existing ChatKit build tokens */
+      --chat--window--width: var(--chatkit-window-width);
+      --chat--window--height: var(--chatkit-window-height);
+      --chat--window--bottom: var(--chatkit-window-bottom);
+      --chat--window--right: var(--chatkit-window-right);
+      --chat--window--border-radius: var(--chatkit-window-border-radius);
     }
- 
 
-  /* 🔧 Override default CSS variables defined by n8n chat */
+
+  /* 🔧 ChatKit theme overrides */
   :root {
-    --chat--color-primary: #00C897; /* Accent color for toggle button, links, etc */
-    --chat--color-primary-shade-50: #00b089;
-    --chat--color-primary-shade-100: #009777;
-    --chat--color-secondary: #00796B; /* User message background */
-    --chat--color-secondary-shade-50: #00695C;
-    --chat--color-light: #f0f8ff;     /* Chat background */
-    --chat--color-dark: #1a1a1a;      /* Bot text color */
-    --chat--message--bot--background: #ffffff;
-    --chat--message--bot--color: #222;
-    --chat--message--user--background: var(--chat--color-secondary);
-    --chat--message--user--color: white;
-    --chat--toggle--background: var(--chat--color-primary);
-    --chat--toggle--hover--background: var(--chat--color-primary-shade-50);
-    --chat--toggle--active--background: var(--chat--color-primary-shade-100);
+    --chatkit-color-primary: #00C897; /* Accent color */
+    --chatkit-color-primary-50: #00b089;
+    --chatkit-color-primary-100: #009777;
+    --chatkit-color-secondary: #00796B; /* User message background */
+    --chatkit-color-secondary-50: #00695C;
+    --chatkit-surface: #f0f8ff;     /* Chat background */
+    --chatkit-text-dark: #1a1a1a;   /* Bot text color */
+    --chatkit-message-bot-background: #ffffff;
+    --chatkit-message-bot-color: #222;
+    --chatkit-message-user-background: var(--chatkit-color-secondary);
+    --chatkit-message-user-color: white;
+    --chatkit-toggle-background: var(--chatkit-color-primary);
+    --chatkit-toggle-hover-background: var(--chatkit-color-primary-50);
+    --chatkit-toggle-active-background: var(--chatkit-color-primary-100);
+    --chatkit-font-family: 'Segoe UI', sans-serif;
+
+    /* Fallback mapping for current ChatKit build */
+    --chat--color-primary: var(--chatkit-color-primary);
+    --chat--color-primary-shade-50: var(--chatkit-color-primary-50);
+    --chat--color-primary-shade-100: var(--chatkit-color-primary-100);
+    --chat--color-secondary: var(--chatkit-color-secondary);
+    --chat--color-secondary-shade-50: var(--chatkit-color-secondary-50);
+    --chat--color-light: var(--chatkit-surface);
+    --chat--color-dark: var(--chatkit-text-dark);
+    --chat--message--bot--background: var(--chatkit-message-bot-background);
+    --chat--message--bot--color: var(--chatkit-message-bot-color);
+    --chat--message--user--background: var(--chatkit-message-user-background);
+    --chat--message--user--color: var(--chatkit-message-user-color);
+    --chat--toggle--background: var(--chatkit-toggle-background);
+    --chat--toggle--hover--background: var(--chatkit-toggle-hover-background);
+    --chat--toggle--active--background: var(--chatkit-toggle-active-background);
+    --chat--font-family: var(--chatkit-font-family);
   }
 
-  /* 🎨 Optional: Style message bubbles directly */
-  .n8n-chat .chat-message.chat-message-from-bot {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    border: 1px solid #e0e0e0;
-  }
-
-  .n8n-chat .chat-message.chat-message-from-user {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    background: linear-gradient(135deg, #005dc8, #2c3e50);
-  }
-
-  /* 📝 Chat input styling */
-  .n8n-chat textarea {
-    background-color: #ffffff;
-    border: 1px solid #0064c8;
-    color: hsl(0, 0%, 13%);
-  }
-
-  .n8n-chat .chat-input-send-button {
-    background-color: #005dc8;
-    color: white;
-  }
-
-  .n8n-chat .chat-header {
-    background-color: #2c3e50;
-    color: white;
-  }
-
-  .n8n-chat .chat-window-wrapper .chat-window-toggle {
-    background: var(--chat--toggle--background);
-    color: white;
+  #chatkit-root {
+    font-family: var(--chatkit-font-family);
   }
         
     </style>      
    
     <!-- Removed old chat initialization script -->
+    <div id="chatkit-root" class="chatkit-container"></div>
+
     <script src="../assets/js/main-scripts.js"></script>
     <script type="module" src="../assets/js/chat-logic.js"></script>
     <script type="module">
@@ -719,7 +715,7 @@ if (isset($_SESSION['user_id'])) {
               inputPlaceholder: 'Type your question...',
             },
           },
-          target: '#chat-root', // Target for ai_chat/index.html
+          target: '#chatkit-root', // Target for ai_chat/index.php
           mode: 'fullscreen',   // Fullscreen mode
           autoOpen: true,       // Auto open
           hideToggle: true,     // Hide toggle
