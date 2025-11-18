@@ -7,6 +7,7 @@ file_put_contents(__DIR__ . '/index_debug.log', date('c') . " index.php loaded\n
 
 require_once __DIR__ . '/auth-system/login_check.php';
 require_once __DIR__ . '/auth-system/config/db.php';
+require_once __DIR__ . '/config/chat.php';
 
 file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
@@ -14,6 +15,7 @@ file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id
 
 <?php
 $gasergyBalance = null;
+$chatkitConfig = getChatkitEnvConfig();
 if (isset($_SESSION['user_id'])) {
     $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
@@ -1224,77 +1226,64 @@ if (isset($_SESSION['user_id'])) {
     </div>
     
     <!-- Removed legacy progress tracking and modal functions -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-   
+    <link href="https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.css" rel="stylesheet" />
+
     <style>
         :root {
-            --chat--color-primary: #00C897;
-            --chat--color-primary-shade-50: #00b089;
-            --chat--color-primary-shade-100: #009777;
-            --chat--color-secondary: #00796B;
-            --chat--color-secondary-shade-50: #00695C;
-            --chat--color-light: #f0f8ff;
-            --chat--color-dark: #1a1a1a;
-            --chat--message--bot--background: #ffffff;
-            --chat--message--bot--color: #222;
-            --chat--message--user--background: var(--chat--color-secondary);
-            --chat--message--user--color: #ffffff;
-            --chat--toggle--background: var(--chat--color-primary);
-            --chat--toggle--hover--background: var(--chat--color-primary-shade-50);
-            --chat--toggle--active--background: var(--chat--color-primary-shade-100);
+            --chatkit-color-primary: #00C897;
+            --chatkit-color-primary-50: #00b089;
+            --chatkit-color-primary-100: #009777;
+            --chatkit-color-secondary: #00796B;
+            --chatkit-color-secondary-50: #00695C;
+            --chatkit-surface: #f0f8ff;
+            --chatkit-text-dark: #1a1a1a;
+            --chatkit-message-bot-background: #ffffff;
+            --chatkit-message-bot-color: #222;
+            --chatkit-message-user-background: var(--chatkit-color-secondary);
+            --chatkit-message-user-color: #ffffff;
+            --chatkit-toggle-background: var(--chatkit-color-primary);
+            --chatkit-toggle-hover-background: var(--chatkit-color-primary-50);
+            --chatkit-toggle-active-background: var(--chatkit-color-primary-100);
+            --chatkit-font-family: 'Segoe UI', sans-serif;
+
+            /* Fallbacks for legacy variables until ChatKit adopts the new tokens */
+            --chat--color-primary: var(--chatkit-color-primary);
+            --chat--color-primary-shade-50: var(--chatkit-color-primary-50);
+            --chat--color-primary-shade-100: var(--chatkit-color-primary-100);
+            --chat--color-secondary: var(--chatkit-color-secondary);
+            --chat--color-secondary-shade-50: var(--chatkit-color-secondary-50);
+            --chat--color-light: var(--chatkit-surface);
+            --chat--color-dark: var(--chatkit-text-dark);
+            --chat--message--bot--background: var(--chatkit-message-bot-background);
+            --chat--message--bot--color: var(--chatkit-message-bot-color);
+            --chat--message--user--background: var(--chatkit-message-user-background);
+            --chat--message--user--color: var(--chatkit-message-user-color);
+            --chat--toggle--background: var(--chatkit-toggle-background);
+            --chat--toggle--hover--background: var(--chatkit-toggle-hover-background);
+            --chat--toggle--active--background: var(--chatkit-toggle-active-background);
+            --chat--font-family: var(--chatkit-font-family);
         }
 
-        .n8n-chat .chat-message.chat-message-from-bot {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 1rem;
-            border: 1px solid #e0e0e0;
+        #chatkit-root {
+            font-family: var(--chatkit-font-family);
         }
+    </style>
 
-        .n8n-chat .chat-message.chat-message-from-user {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 1rem;
-            background: linear-gradient(135deg, #005dc8, #2c3e50);
-        }
-
-        .n8n-chat textarea {
-            background-color: #ffffff;
-            border: 1px solid #0064c8;
-            color: hsl(0, 0%, 13%);
-        }
-
-        .n8n-chat .chat-window-toggle {
-            background-color: #005dc8;
-        }
-
-        .n8n-chat .chat-input-send-button {
-            background-color: #005dc8;
-            color: white;
-        }
-
-        .n8n-chat .chat-header {
-            background-color: #2c3e50;
-            color: white;
-        }
-
-        .n8n-chat .chat-window-wrapper .chat-window-toggle {
-            background: lightblue !important;
-            color: white;
-        }
-    </style>      
-   
-   <div id="n8n-chat"></div>
-   <!-- Removed old n8n-chat module script -->
+   <div id="chatkit-root" class="chatkit-container"></div>
     <script src="assets/js/main-scripts.js"></script>
     <script type="module" src="assets/js/chat-logic.js"></script>
     <script type="module">
-      import { initializeN8NChat } from './assets/js/chat-logic.js';
+      import { initializeChatKit } from './assets/js/chat-logic.js';
+
+      const chatkitEnvConfig = <?php echo json_encode($chatkitConfig); ?>;
 
       document.addEventListener('DOMContentLoaded', () => {
         // Initialize main scripts (like progress tracking) if it has its own init function,
         // or ensure it runs on DOMContentLoaded from within main-scripts.js itself.
         // For chat:
-        initializeN8NChat({
-          webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
+        initializeChatKit({
+          webhookUrl: chatkitEnvConfig.webhookUrl,
+          headers: chatkitEnvConfig.openAiApiKey ? { 'x-openai-api-key': chatkitEnvConfig.openAiApiKey } : undefined,
           initialMessages: [
             'Welcome to the AI Master HTML Assistant!',
             'Feel free to ask any questions about HTML.',
@@ -1308,7 +1297,7 @@ if (isset($_SESSION['user_id'])) {
               inputPlaceholder: 'Type your question...',
             },
           },
-          target: '#n8n-chat', // Target for index.php
+          target: '#chatkit-root', // Target for index.php
           mode: 'popup', // Default mode
           autoOpen: false,
           hideToggle: false,
