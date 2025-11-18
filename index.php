@@ -7,6 +7,7 @@ file_put_contents(__DIR__ . '/index_debug.log', date('c') . " index.php loaded\n
 
 require_once __DIR__ . '/auth-system/login_check.php';
 require_once __DIR__ . '/auth-system/config/db.php';
+require_once __DIR__ . '/config/chat.php';
 
 file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
@@ -14,6 +15,7 @@ file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id
 
 <?php
 $gasergyBalance = null;
+$chatkitConfig = getChatkitEnvConfig();
 if (isset($_SESSION['user_id'])) {
     $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
@@ -1273,12 +1275,15 @@ if (isset($_SESSION['user_id'])) {
     <script type="module">
       import { initializeChatKit } from './assets/js/chat-logic.js';
 
+      const chatkitEnvConfig = <?php echo json_encode($chatkitConfig); ?>;
+
       document.addEventListener('DOMContentLoaded', () => {
         // Initialize main scripts (like progress tracking) if it has its own init function,
         // or ensure it runs on DOMContentLoaded from within main-scripts.js itself.
         // For chat:
         initializeChatKit({
-          webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
+          webhookUrl: chatkitEnvConfig.webhookUrl,
+          headers: chatkitEnvConfig.openAiApiKey ? { 'x-openai-api-key': chatkitEnvConfig.openAiApiKey } : undefined,
           initialMessages: [
             'Welcome to the AI Master HTML Assistant!',
             'Feel free to ask any questions about HTML.',
