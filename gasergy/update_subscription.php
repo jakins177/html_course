@@ -67,20 +67,6 @@ try {
     // changes. This ensures that gasergy is added only after a successful
     // payment.
 
-    // Manually update gasergy balance
-    $stmt = $pdo->prepare("SELECT subscription_gasergy FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $oldGasergy = (int)($stmt->fetchColumn() ?: 0);
-    $diff = $amount - $oldGasergy;
-    if ($diff > 0) {
-        $stmt = $pdo->prepare(
-            "UPDATE users SET subscription_gasergy = ?, gasergy_balance = gasergy_balance + ? WHERE id = ?"
-        );
-        $stmt->execute([$amount, $diff, $userId]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE users SET subscription_gasergy = ? WHERE id = ?");
-        $stmt->execute([$amount, $userId]);
-    }
 } catch (Exception $e) {
 
     log_subscription('Stripe error updating ' . $subscriptionId . ': ' . $e->getMessage());
@@ -89,4 +75,5 @@ try {
     exit('Stripe error');
 }
 
-header('Location: manage_subscription.php?update=success');
+header('Location: https://billing.stripe.com/p/login/test_00wbJ12SW34q2cK1O10sU00');
+exit;

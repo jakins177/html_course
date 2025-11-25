@@ -1,11 +1,25 @@
 /* Dark mode styles */
-html.dark {
+html.dark:not(.themed) {
     filter: invert(1) hue-rotate(180deg);
     background-color: #121212 !important;
 }
-html.dark img, html.dark video {
+
+html.dark:not(.themed) img,
+html.dark:not(.themed) video {
     filter: invert(1) hue-rotate(180deg) !important;
 }
+
+/* Themed pages manage their own palettes */
+html.themed.dark {
+    filter: none !important;
+    background-color: transparent;
+}
+
+html.themed.dark img,
+html.themed.dark video {
+    filter: none !important;
+}
+
 /* Dark mode toggle button positioning */
 #dark-mode-toggle {
     position: fixed;
@@ -15,17 +29,38 @@ html.dark img, html.dark video {
     height: 40px;
     border-radius: 50%;
     border: none;
-    background-color: #3498db;
+    background: #3498db;
     color: white;
     font-size: 18px;
     cursor: pointer;
     z-index: 10000;
-    opacity: 0.7;
-    transition: opacity 0.3s;
+    opacity: 0.75;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    display: grid;
+    place-items: center;
+    transition: opacity 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
 }
+
 #dark-mode-toggle:hover {
     opacity: 1;
+    transform: translateY(-2px);
 }
-html.dark #dark-mode-toggle {
+
+html.dark:not(.themed) #dark-mode-toggle {
     background-color: #e74c3c;
+}
+
+html.themed #dark-mode-toggle {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border-color, rgba(255, 255, 255, 0.24)) 70%, transparent);
+    background: var(--primary-gradient, linear-gradient(135deg, #6ae3ff 0%, #7a6bff 50%, #ff8dfc 100%));
+    color: #0a0f1c;
+    opacity: 0.85;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+html.themed.dark #dark-mode-toggle {
+    border-color: rgba(233, 236, 248, 0.35);
 }

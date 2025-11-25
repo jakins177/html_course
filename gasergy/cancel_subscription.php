@@ -43,4 +43,5 @@ try {
     exit('Stripe error');
 }
 
-header('Location: manage_subscription.php');
+header('Location: https://billing.stripe.com/p/login/test_00wbJ12SW34q2cK1O10sU00');
+exit;
