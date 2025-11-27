@@ -1,49 +1,7 @@
 // assets/js/chat-logic.js
-import * as ChatKitModule from 'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
 
-function resolveChatKitInitializer(module) {
-  if (!module) {
-    throw new Error('ChatKit module failed to load.');
-  }
-
-  const candidates = [
-    module.initializeChatKit,
-    module.createChatKit,
-    module.createChat,
-    module.default,
-  ];
-
-  const initializer = candidates.find((candidate) => typeof candidate === 'function');
-
-  if (!initializer) {
-    throw new Error('Unable to find a ChatKit initializer in the loaded module.');
-  }
-
-  return initializer;
-}
-
-export function initializeChatKit(config) {
-  const initialize = resolveChatKitInitializer(ChatKitModule);
-
-  const chatOptions = {
-    webhookUrl: config.webhookUrl,
-    initialMessages: config.initialMessages,
-    i18n: config.i18n,
-    target: config.target,
-    mode: config.mode,
-    autoOpen: config.autoOpen,
-    hideToggle: config.hideToggle,
-  };
-
-  if (config.theme) {
-    chatOptions.theme = config.theme;
-  }
-
-  if (config.headers) {
-    chatOptions.headers = config.headers;
-  }
-
-  const chatInstance = initialize(chatOptions);
+const DEFAULT_CHATKIT_BUNDLE_URL =
+  'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.js';
 
 let chatKitScriptPromise = null;
 
@@ -79,7 +37,7 @@ function getTargetElement(target) {
     return document.querySelector(target);
   }
 
-  return chatInstance;
+  return target instanceof HTMLElement ? target : null;
 }
 
 function buildChatKitOptions(config) {
