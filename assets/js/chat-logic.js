@@ -55,7 +55,7 @@ function resolveChatKitInitializer(module) {
   return initializer;
 }
 
-export function initializeChatKit(config) {
+function initializeChatKitFromModule(config) {
   const initialize = resolveChatKitInitializer(ChatKitModule);
 
   const chatOptions = {
@@ -77,6 +77,9 @@ export function initializeChatKit(config) {
   }
 
   const chatInstance = initialize(chatOptions);
+
+  return chatInstance;
+}
 
 let chatKitScriptPromise = null;
 
