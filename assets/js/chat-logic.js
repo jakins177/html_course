@@ -1,5 +1,4 @@
 // assets/js/chat-logic.js
-import * as ChatKitModule from 'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
 
 const DEFAULT_CHATKIT_BUNDLE_URL =
   'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
@@ -113,7 +112,7 @@ function getTargetElement(target) {
     return document.querySelector(target);
   }
 
-  return chatInstance;
+  return target instanceof HTMLElement ? target : null;
 }
 
 function buildChatKitOptions(config) {
