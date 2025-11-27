@@ -1,0 +1,30 @@
+/* Local fallback stylesheet for the OpenAI ChatKit web component. */
+:root {
+  --chatkit-font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --chatkit-primary-color: #0f9afe;
+  --chatkit-surface: #ffffff;
+  --chatkit-surface-strong: #0f172a;
+  --chatkit-border-radius: 1rem;
+}
+
+openai-chatkit {
+  display: block;
+  font-family: var(--chatkit-font-family);
+  color: #0f172a;
+  background: transparent;
+}
+
+openai-chatkit::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* Basic sizing so the chat container renders predictably even without upstream styles. */
+openai-chatkit:not([data-chat-mode='inline']) {
+  max-width: 420px;
+  min-height: 240px;
+}
+
+openai-chatkit[data-chat-mode='inline'] {
+  width: 100%;
+  min-height: 480px;
+}

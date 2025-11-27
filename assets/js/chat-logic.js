@@ -1,6 +1,40 @@
 // assets/js/chat-logic.js
 import * as ChatKitModule from 'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
 
+const DEFAULT_CHATKIT_BUNDLE_URL =
+  'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
+const DEFAULT_CHATKIT_STYLE_URL = '/assets/chatkit.css';
+
+let chatKitStylePromise = null;
+
+function ensureChatKitStylesheet(styleUrl = DEFAULT_CHATKIT_STYLE_URL) {
+  if (typeof document === 'undefined') {
+    return Promise.resolve();
+  }
+
+  const existingLink = document.querySelector(
+    'link[data-chatkit-style="true"], link[href*="chatkit.css"]',
+  );
+  if (existingLink) {
+    return Promise.resolve();
+  }
+
+  if (!chatKitStylePromise) {
+    chatKitStylePromise = new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = styleUrl || DEFAULT_CHATKIT_STYLE_URL;
+      link.dataset.chatkitStyle = 'true';
+      link.onload = () => resolve();
+      link.onerror = () =>
+        reject(new Error(`Failed to load ChatKit stylesheet from ${link.href}`));
+      document.head.appendChild(link);
+    });
+  }
+
+  return chatKitStylePromise;
+}
+
 function resolveChatKitInitializer(module) {
   if (!module) {
     throw new Error('ChatKit module failed to load.');
@@ -418,12 +452,16 @@ export function initializeChatKit(config = {}) {
   }
 
   const scriptUrl = config.bundleUrl || DEFAULT_CHATKIT_BUNDLE_URL;
+  const styleUrl = config.styleUrl || DEFAULT_CHATKIT_STYLE_URL;
 
   if (window.customElements?.get('openai-chatkit')) {
-    return Promise.resolve(initialize());
+    return ensureChatKitStylesheet(styleUrl).then(initialize);
   }
 
-  return loadChatKitScript(scriptUrl)
+  return Promise.all([
+    loadChatKitScript(scriptUrl),
+    ensureChatKitStylesheet(styleUrl),
+  ])
     .then(initialize)
     .catch((error) => {
       console.error('ChatKit initializer: Unable to load bundle.', error);
