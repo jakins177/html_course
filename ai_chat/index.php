@@ -617,7 +617,7 @@ $chatkitConfig = getChatkitEnvConfig();
     </div>
     
     <!-- Removed legacy progress tracking and modal functions -->
-    <link href="https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.css" rel="stylesheet" />
+    <link href="/assets/chatkit.css" rel="stylesheet" />
    
 
     <style>
