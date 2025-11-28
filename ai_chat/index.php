@@ -696,8 +696,8 @@ $chatkitConfig = getChatkitEnvConfig();
     <!-- Removed old chat initialization script -->
     <div id="chatkit-root" class="chatkit-container"></div>
 
-    <script src="../assets/js/main-scripts.js"></script>
-    <script type="module" src="../assets/js/chat-logic.js"></script>
+    <script src="/assets/js/main-scripts.js"></script>
+    <script type="module" src="/assets/js/chat-logic.js"></script>
     <script nomodule>
       (function loadChatKitFallback() {
         const fallbackSrc =
@@ -712,7 +712,7 @@ $chatkitConfig = getChatkitEnvConfig();
       })();
     </script>
     <script type="module">
-      import { initializeChatKit } from '../assets/js/chat-logic.js';
+      import { initializeChatKit } from '/assets/js/chat-logic.js';
 
       const chatkitEnvConfig = <?php echo json_encode($chatkitConfig); ?>;
 
@@ -738,10 +738,10 @@ $chatkitConfig = getChatkitEnvConfig();
           autoOpen: true,       // Auto open
           hideToggle: true,     // Hide toggle
           gasergy: {
-            fetchPath: '../gasergy/decrease_gasergy.php', // Path for ai_chat/index.php
+            fetchPath: '/gasergy/decrease_gasergy.php', // Path for ai_chat/index.php
             balanceDisplaySelector: '#gasergy-balance-display', // Update balance in real time
-            refillPath: '../gasergy/get.php',
-            balancePath: '../gasergy/get_balance.php'
+            refillPath: '/gasergy/get.php',
+            balancePath: '/gasergy/get_balance.php'
           }
         });
       });
