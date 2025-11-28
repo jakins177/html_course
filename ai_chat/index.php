@@ -698,6 +698,19 @@ $chatkitConfig = getChatkitEnvConfig();
 
     <script src="../assets/js/main-scripts.js"></script>
     <script type="module" src="../assets/js/chat-logic.js"></script>
+    <script nomodule>
+      (function loadChatKitFallback() {
+        const fallbackSrc =
+          'https://cdn.jsdelivr.net/gh/jakins177/Chat1@latest/dist/chatkit.bundle.es.js';
+
+        if (!document.querySelector(`script[src="${fallbackSrc}"]`)) {
+          const script = document.createElement('script');
+          script.src = fallbackSrc;
+          script.async = true;
+          document.head.appendChild(script);
+        }
+      })();
+    </script>
     <script type="module">
       import { initializeChatKit } from '../assets/js/chat-logic.js';
 
