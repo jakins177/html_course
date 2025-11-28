@@ -781,8 +781,8 @@ if (isset($_SESSION['user_id'])) {
             }
         }
     </style>
-<link rel="stylesheet" href="assets/darkmode.css">
-<script defer src="assets/darkmode.js"></script>
+<link rel="stylesheet" href="/assets/darkmode.css">
+<script defer src="/assets/darkmode.js"></script>
 </head>
 <body>
     <header>
@@ -790,7 +790,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="brand">
                 <div class="brand-logo">
                     <a href="/" target="_blank" rel="noopener noreferrer">
-                        <img src="assets/logo.png" width="44" height="44" alt="HTML Master Logo">
+                        <img src="/assets/logo.png" width="44" height="44" alt="HTML Master Logo">
                     </a>
                 </div>
                 <div class="brand-text">
@@ -800,7 +800,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
             <div class="nav-right">
                 <nav class="nav-links">
-                    <a href="ai_chat/index.php">AI Expert Chat</a>
+                    <a href="/ai_chat/index.php">AI Expert Chat</a>
                     <a href="#course-overview">Overview</a>
                     <a href="#modules">Modules</a>
                     <a href="#projects">Projects</a>
@@ -808,10 +808,10 @@ if (isset($_SESSION['user_id'])) {
                 <div class="nav-actions">
                     <span id="gasergy-balance-display" class="chip" aria-live="polite">⚡ <?php echo htmlspecialchars($gasergyBalance ?? '0'); ?> Gasergy</span>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a class="btn btn-ghost" href="auth-system/backend-login-src/logout.php">Logout</a>
+                        <a class="btn btn-ghost" href="/auth-system/backend-login-src/logout.php">Logout</a>
                     <?php else: ?>
-                        <a class="btn btn-ghost" href="auth-system/login.html">Login</a>
-                        <a class="btn btn-primary" href="auth-system/register.html">Register</a>
+                        <a class="btn btn-ghost" href="/auth-system/login.html">Login</a>
+                        <a class="btn btn-primary" href="/auth-system/register.html">Register</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -828,8 +828,8 @@ if (isset($_SESSION['user_id'])) {
                 <div class="cta-row">
                     <a href="#modules" class="btn btn-primary">Start Learning</a>
                     <a href="#projects" class="btn btn-ghost">View Projects</a>
-                    <a href="ai_chat/index.php" class="btn btn-outline">AI Expert Chat</a>
-                    <a href="gasergy/get.php" class="btn btn-ghost">⚡ Get Gasergy</a>
+                    <a href="/ai_chat/index.php" class="btn btn-outline">AI Expert Chat</a>
+                    <a href="/gasergy/get.php" class="btn btn-ghost">⚡ Get Gasergy</a>
                 </div>
                 <div class="hero-card hero-benefits">
                     <div class="row">
@@ -851,8 +851,8 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                     <div class="row subtle">“Course + AI companion”</div>
                     <div class="cta-row">
-                        <a class="btn btn-primary" href="ai_chat/index.php">Chat with the tutor</a>
-                        <a class="btn btn-ghost" href="gasergy/get.php">⚡ Gasergy credits</a>
+                        <a class="btn btn-primary" href="/ai_chat/index.php">Chat with the tutor</a>
+                        <a class="btn btn-ghost" href="/gasergy/get.php">⚡ Gasergy credits</a>
                     </div>
                     <div class="row subtle">Stay in flow with curated lessons and quick answers whenever you need them.</div>
                 </div>
@@ -922,16 +922,16 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Learn the fundamental building blocks of HTML and create your first web pages.</p>
                         <ul class="lesson-list">
-                            <li><a href="basics/01_introduction.html">Introduction to HTML</a></li>
-                            <li><a href="basics/02_document_structure.html">HTML Document Structure</a></li>
-                            <li><a href="basics/03_text_elements.html">Text Elements</a></li>
-                            <li><a href="basics/04_links.html">Links and Navigation</a></li>
-                            <li><a href="basics/05_images.html">Images and Multimedia</a></li>
-                            <li><a href="basics/06_lists.html">Lists</a></li>
-                            <li><a href="basics/07_tables.html">Tables</a></li>
-                            <li><a href="basics/08_forms.html">Forms</a></li>
+                            <li><a href="/basics/01_introduction.html">Introduction to HTML</a></li>
+                            <li><a href="/basics/02_document_structure.html">HTML Document Structure</a></li>
+                            <li><a href="/basics/03_text_elements.html">Text Elements</a></li>
+                            <li><a href="/basics/04_links.html">Links and Navigation</a></li>
+                            <li><a href="/basics/05_images.html">Images and Multimedia</a></li>
+                            <li><a href="/basics/06_lists.html">Lists</a></li>
+                            <li><a href="/basics/07_tables.html">Tables</a></li>
+                            <li><a href="/basics/08_forms.html">Forms</a></li>
                         </ul>
-                        <a href="basics/01_introduction.html" class="btn btn-outline">Start Module</a>
+                        <a href="/basics/01_introduction.html" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
                 
@@ -942,14 +942,14 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Expand your HTML knowledge with more advanced elements and techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="intermediate/01_semantic_elements.php">HTML5 Semantic Elements</a></li>
-                            <li><a href="intermediate/02_metadata.php">Metadata and Document Head</a></li>
-                            <li><a href="intermediate/03_accessibility.php">Accessibility Best Practices</a></li>
-                            <li><a href="intermediate/04_character_entities.php">Character Entities</a></li>
-                            <li><a href="intermediate/05_embedding_content.php">Embedding Content</a></li>
-                            <li><a href="intermediate/06_advanced_forms.php">Advanced Forms</a></li>
+                            <li><a href="/intermediate/01_semantic_elements.php">HTML5 Semantic Elements</a></li>
+                            <li><a href="/intermediate/02_metadata.php">Metadata and Document Head</a></li>
+                            <li><a href="/intermediate/03_accessibility.php">Accessibility Best Practices</a></li>
+                            <li><a href="/intermediate/04_character_entities.php">Character Entities</a></li>
+                            <li><a href="/intermediate/05_embedding_content.php">Embedding Content</a></li>
+                            <li><a href="/intermediate/06_advanced_forms.php">Advanced Forms</a></li>
                         </ul>
-                        <a href="intermediate/01_semantic_elements.php" class="btn btn-outline">Start Module</a>
+                        <a href="/intermediate/01_semantic_elements.php" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
                 
@@ -960,14 +960,14 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Master advanced HTML concepts and modern web development techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="advanced/01_html5_apis.php">HTML5 APIs and Features</a></li>
-                            <li><a href="advanced/02_canvas_svg.php">Canvas and SVG</a></li>
-                            <li><a href="advanced/03_web_components.php">Web Components</a></li>
-                            <li><a href="advanced/04_microdata.php">Microdata and Structured Data</a></li>
-                            <li><a href="advanced/05_performance_optimization.php">Performance Optimization</a></li>
-                            <li><a href="advanced/06_integration.php">Integration with CSS and JavaScript</a></li>
+                            <li><a href="/advanced/01_html5_apis.php">HTML5 APIs and Features</a></li>
+                            <li><a href="/advanced/02_canvas_svg.php">Canvas and SVG</a></li>
+                            <li><a href="/advanced/03_web_components.php">Web Components</a></li>
+                            <li><a href="/advanced/04_microdata.php">Microdata and Structured Data</a></li>
+                            <li><a href="/advanced/05_performance_optimization.php">Performance Optimization</a></li>
+                            <li><a href="/advanced/06_integration.php">Integration with CSS and JavaScript</a></li>
                         </ul>
-                        <a href="advanced/01_html5_apis.php" class="btn btn-outline">Start Module</a>
+                        <a href="/advanced/01_html5_apis.php" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
             </div>
@@ -1038,7 +1038,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="project-grid">
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/ProfileDesign.png" alt="Personal Portfolio">
+                        <img src="/assets/images/ProfileDesign.png" alt="Personal Portfolio">
                     </div>
                     <div class="project-content">
                         <h3>Personal Portfolio</h3>
@@ -1054,7 +1054,7 @@ if (isset($_SESSION['user_id'])) {
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/LayoutDesign.png" alt="Blog Template">
+                        <img src="/assets/images/LayoutDesign.png" alt="Blog Template">
                     </div>
                     <div class="project-content">
                         <h3>Blog Template</h3>
@@ -1070,7 +1070,7 @@ if (isset($_SESSION['user_id'])) {
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/E-commerce.png" alt="E-commerce Product Page">
+                        <img src="/assets/images/E-commerce.png" alt="E-commerce Product Page">
                     </div>
                     <div class="project-content">
                         <h3>E-commerce Product Page</h3>
@@ -1086,7 +1086,7 @@ if (isset($_SESSION['user_id'])) {
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/Dashboard.png" alt="Interactive Dashboard">
+                        <img src="/assets/images/Dashboard.png" alt="Interactive Dashboard">
                     </div>
                     <div class="project-content">
                         <h3>Interactive Dashboard</h3>
@@ -1111,9 +1111,9 @@ if (isset($_SESSION['user_id'])) {
                     <span class="subtle">SRN-inspired curriculum and AI companion for modern builders.</span>
                 </div>
                 <div class="footer-links">
-                    <a href="ai_chat/index.php">AI Expert Chat</a>
-                    <a href="gasergy/get.php">Gasergy</a>
-                    <a href="auth-system/login.html">Login</a>
+                    <a href="/ai_chat/index.php">AI Expert Chat</a>
+                    <a href="/gasergy/get.php">Gasergy</a>
+                    <a href="/auth-system/login.html">Login</a>
                 </div>
             </div>
             <div class="footer-meta subtle">© <?php echo date('Y'); ?> HTML Master Course. All rights reserved.</div>
@@ -1143,7 +1143,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Accessibility best practices</li>
                 <li>Image optimization</li>
             </ul>
-            <a href="projects/portfolio_template.html" class="btn btn-primary" download>Download Project Template</a>
+            <a href="/projects/portfolio_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -1169,7 +1169,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Metadata and SEO basics</li>
                 <li>Content organization</li>
             </ul>
-            <a href="projects/blog_template.html" class="btn btn-primary" download>Download Project Template</a>
+            <a href="/projects/blog_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -1195,7 +1195,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Semantic product information</li>
                 <li>Responsive design for e-commerce</li>
             </ul>
-            <a href="projects/ecommerce_template.html" class="btn btn-primary" download>Download Project Template</a>
+            <a href="/projects/ecommerce_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -1221,7 +1221,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Interactive HTML elements</li>
                 <li>Table structure and accessibility</li>
             </ul>
-            <a href="projects/dashboard_template.html" class="btn btn-primary" download>Download Project Template</a>
+            <a href="/projects/dashboard_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -1270,10 +1270,10 @@ if (isset($_SESSION['user_id'])) {
     </style>
 
    <div id="chatkit-root" class="chatkit-container"></div>
-    <script src="assets/js/main-scripts.js"></script>
-    <script type="module" src="assets/js/chat-logic.js"></script>
+    <script src="/assets/js/main-scripts.js"></script>
+    <script type="module" src="/assets/js/chat-logic.js"></script>
     <script type="module">
-      import { initializeChatKit } from './assets/js/chat-logic.js';
+      import { initializeChatKit } from '/assets/js/chat-logic.js';
 
       const chatkitEnvConfig = <?php echo json_encode($chatkitConfig); ?>;
 
@@ -1302,10 +1302,10 @@ if (isset($_SESSION['user_id'])) {
           autoOpen: false,
           hideToggle: false,
           gasergy: {
-            fetchPath: 'gasergy/decrease_gasergy.php', // Path for index.php
+            fetchPath: '/gasergy/decrease_gasergy.php', // Path for index.php
             balanceDisplaySelector: '#gasergy-balance-display', // Selector for balance display
-            refillPath: 'gasergy/get.php',
-            balancePath: 'gasergy/get_balance.php'
+            refillPath: '/gasergy/get.php',
+            balancePath: '/gasergy/get_balance.php'
           }
         });
       });
