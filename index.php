@@ -29,6 +29,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
     <title>HTML Master Comprehensive HTML Course</title>
     <style>
         :root {
@@ -780,11 +781,54 @@ if (isset($_SESSION['user_id'])) {
                 justify-content: center;
             }
         }
+
+        /* Floating Launcher Button */
+    #chatLauncher {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 1000;
+      padding: 12px 18px;
+      background-color: #2563EB;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    /* Chat Container panel */
+    #chatContainer {
+      display: none; /* hidden initially */
+      position: fixed;
+      bottom: 80px; /* above the launcher button */
+      right: 16px;
+      width: 350px;
+      height: 500px;
+      max-width: 90%;
+      max-height: 80%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      z-index: 999;
+    }
+    /* Make the web component fill the container */
+    #chatContainer openai-chatkit {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
     </style>
 <link rel="stylesheet" href="/assets/darkmode.css">
 <script defer src="/assets/darkmode.js"></script>
 </head>
 <body>
+<button id="chatLauncher">Chat</button>
+
+<div id="chatContainer">
+  <openai-chatkit id="my-chat"></openai-chatkit>
+</div>
     <header>
         <div class="container nav-inner">
             <div class="brand">
@@ -1310,5 +1354,6 @@ if (isset($_SESSION['user_id'])) {
         });
       });
     </script>
+    <script src="./main.js" defer></script>
 </body>
 </html>
