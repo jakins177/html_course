@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 
 // --- Load environment variables from .env file ---
-$envFile = __DIR__ . '/.env';
+$envFile = __DIR__ . '/config/.env';
 if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
     foreach ($env as $key => $value) {
