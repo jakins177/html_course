@@ -10,7 +10,7 @@ function getChatkitEnvConfig(): array
     $resolvedWorkflow = $workflowId !== '' ? $workflowId : $defaultWorkflow;
 
     return [
-        'webhookUrl' => "https://palmtreesai.com/n8n/webhook/{$resolvedWorkflow}/chat",
+        'webhookUrl' => '/chatkit_session.php',
         'openAiApiKey' => $openAiApiKey,
     ];
 }
