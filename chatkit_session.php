@@ -94,6 +94,19 @@ if (curl_errno($ch)) {
     echo json_encode(["error" => $curl_error]);
     exit;
 }
-curl_close($ch);
+if ($httpcode >= 400) {
+    http_response_code($httpcode);
+    $errorDetails = json_decode($response, true);
+    $errorMessage = "Failed to create ChatKit session. ";
+    if (isset($errorDetails['error']['message'])) {
+        $errorMessage .= $errorDetails['error']['message'];
+    } else {
+        $errorMessage .= "Received status code: " . $httpcode;
+    }
+    error_log('[ChatKit] Error from OpenAI API: ' . $errorMessage);
+    echo json_encode(["error" => $errorMessage]);
+} else {
+    echo $response;
+}
 
-echo $response;
+curl_close($ch);

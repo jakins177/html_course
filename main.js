@@ -3,6 +3,11 @@ async function initChatKit() {
   const response = await fetch("chatkit_session.php", { method: "POST" });
   const data = await response.json();
   console.log('Response from chatkit_session.php:', data);
+  if (data.error) {
+    console.error("ChatKit initialization failed:", data.error);
+    alert("ChatKit failed to initialize: " + data.error);
+    return;
+  }
 
   // Extract the client secret from the response object.
   // The API returns `{ client_secret: { value: "...", expires_at: ... } }`.
