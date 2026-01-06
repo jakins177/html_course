@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('Invalid email or password.');
     }
 
-    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_id'] = (string)$user['id'];
     header('Location: ../../index.php'); // Change this to your dashboard/home page
     exit;
 }
