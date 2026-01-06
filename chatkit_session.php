@@ -44,7 +44,7 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 }
 session_start();
 if (isset($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
+    $userId = (string)$_SESSION['user_id'];
 } else {
     $userId = "user_" . uniqid();
     $_SESSION['user_id'] = $userId;
