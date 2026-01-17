@@ -7,555 +7,904 @@ file_put_contents(__DIR__ . '/index_debug.log', date('c') . " index.php loaded\n
 
 require_once __DIR__ . '/auth-system/login_check.php';
 require_once __DIR__ . '/auth-system/config/db.php';
+require_once __DIR__ . '/config/chat.php';
 
 file_put_contents(__DIR__ . '/index_debug.log', "User ID: " . $_SESSION['user_id'] . "\n", FILE_APPEND);
 ?>
 
 
 <?php
+$gasergyBalance = null;
+$chatkitConfig = getChatkitEnvConfig();
 if (isset($_SESSION['user_id'])) {
     $stmt = $pdo->prepare("SELECT gasergy_balance FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
-    $balance = $stmt->fetchColumn();
-    echo "<p id='gasergy-balance-display'>Gasergy balance: ⚡ $balance</p>";
+    $gasergyBalance = $stmt->fetchColumn();
 }
 ?>
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="themed">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" defer></script>
     <title>HTML Master Comprehensive HTML Course</title>
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --accent-color: #e74c3c;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --border-color: #ddd;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-main: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --card-radius: 18px;
+            --transition-base: 0.25s ease;
         }
-        
-        * {
+
+        html.themed {
+            color-scheme: light;
+            --bg-base: #f3f6ff;
+            --bg-layer-1: radial-gradient(1200px 600px at 20% -20%, rgba(124, 109, 255, 0.18), transparent 65%);
+            --bg-layer-2: radial-gradient(1000px 600px at 120% 10%, rgba(95, 220, 255, 0.2), transparent 60%);
+            --text-color: #151b2f;
+            --muted-color: #556184;
+            --surface: rgba(255, 255, 255, 0.78);
+            --surface-strong: rgba(255, 255, 255, 0.92);
+            --border-color: rgba(33, 46, 94, 0.16);
+            --shadow-color: 0 24px 60px rgba(18, 34, 68, 0.14);
+            --chip-bg: rgba(19, 61, 119, 0.08);
+            --chip-border: rgba(33, 46, 94, 0.18);
+            --chip-highlight: rgba(124, 109, 255, 0.16);
+            --primary-gradient: linear-gradient(135deg, #5fdcff 0%, #7c6dff 50%, #ff93f9 100%);
+            --ghost-bg: rgba(255, 255, 255, 0.45);
+            --ghost-color: #1d2540;
+            --card-blur: saturate(1.2) blur(12px);
+            --section-spacing: clamp(3rem, 7vw, 5rem);
+            --module-header-bg: linear-gradient(135deg, rgba(95, 220, 255, 0.25), rgba(124, 109, 255, 0.32));
+            --project-image-overlay: linear-gradient(135deg, rgba(95, 220, 255, 0.18), rgba(124, 109, 255, 0.22));
+        }
+
+        html.themed.dark {
+            color-scheme: dark;
+            --bg-base: #0b1020;
+            --bg-layer-1: radial-gradient(1200px 600px at 20% -20%, rgba(122, 107, 255, 0.25), transparent 60%);
+            --bg-layer-2: radial-gradient(900px 700px at 120% 20%, rgba(106, 227, 255, 0.18), transparent 60%);
+            --text-color: #e9ecf8;
+            --muted-color: #a2acc3;
+            --surface: rgba(255, 255, 255, 0.06);
+            --surface-strong: rgba(255, 255, 255, 0.12);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --shadow-color: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --chip-bg: rgba(255, 255, 255, 0.08);
+            --chip-border: rgba(255, 255, 255, 0.18);
+            --chip-highlight: rgba(122, 107, 255, 0.22);
+            --primary-gradient: linear-gradient(135deg, #6ae3ff 0%, #7a6bff 50%, #ff8dfc 100%);
+            --ghost-bg: rgba(255, 255, 255, 0.08);
+            --ghost-color: #e9ecf8;
+            --card-blur: saturate(1.35) blur(14px);
+            --section-spacing: clamp(3rem, 7vw, 5.2rem);
+            --module-header-bg: linear-gradient(135deg, rgba(106, 227, 255, 0.2), rgba(122, 107, 255, 0.28));
+            --project-image-overlay: linear-gradient(135deg, rgba(106, 227, 255, 0.18), rgba(122, 107, 255, 0.22));
+        }
+
+        *, *::before, *::after {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
-        
+
         body {
+            margin: 0;
             font-family: var(--font-main);
-            line-height: 1.6;
-            color: #333;
-            background-color: #f9f9f9;
+            line-height: 1.65;
+            color: var(--text-color);
+            background: var(--bg-layer-1), var(--bg-layer-2), var(--bg-base);
+            min-height: 100vh;
+            transition: background 0.6s ease, color 0.4s ease;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+
+        h1, h2, h3, h4 {
+            margin: 0;
+            color: var(--text-color);
         }
-        
-        header {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .logo span {
-            color: var(--primary-color);
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        
-        nav ul li {
-            margin-left: 20px;
-        }
-        
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        nav ul li a:hover {
-            color: var(--primary-color);
-        }
-        
-        .hero {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin: 0 auto 30px;
-        }
-        
-        .btn {
-            display: inline-block;
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        .btn:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn-accent {
-            background-color: var(--accent-color);
-        }
-        
-        .btn-accent:hover {
-            background-color: #c0392b;
-        }
-        /* Primary (blue) button style */
-        .btn-primary {
-            /* Even darker blue for primary buttons */
-            background-color: #1f5a82;
-        }
-        .btn-primary:hover {
-            /* Deepest blue on hover */
-            background-color: #163b5c;
-        }
-        
-        .course-overview {
-            padding: 60px 0;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-            color: var(--dark-color);
-        }
-        
-        .section-title h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .section-title p {
-            color: #666;
-        }
-        
-        .features {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 40px;
-        }
-        
-        .feature {
-            flex: 0 0 calc(33.333% - 20px);
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .feature-icon {
-            font-size: 40px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-        
-        .feature h3 {
-            margin-bottom: 15px;
-            color: var(--dark-color);
-        }
-        
-        .modules {
-            padding: 60px 0;
-            background-color: #f0f4f8;
-        }
-        
-        .module-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .module-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .module-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .module-header {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 15px 20px;
-        }
-        
-        .module-header h3 {
+
+        p {
             margin: 0;
         }
-        
-        .module-content {
-            padding: 20px;
-        }
-        
-        .module-content p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-        
-        .lesson-list {
-            list-style: none;
-            margin-bottom: 20px;
-        }
-        
-        .lesson-list li {
-            margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .lesson-list li::before {
-            content: "•";
-            color: var(--primary-color);
-            position: absolute;
-            left: 0;
-        }
-        
-        .lesson-list li a {
-            color: #333;
+
+        a {
+            color: inherit;
             text-decoration: none;
-            transition: color 0.3s;
         }
-        
-        .lesson-list li a:hover {
-            color: var(--primary-color);
+
+        img {
+            max-width: 100%;
+            display: block;
         }
-        
-        .progress-section {
-            padding: 60px 0;
+
+        button {
+            font-family: inherit;
         }
-        
-        .progress-tracker {
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+
+        .container {
+            width: min(1120px, 92vw);
+            margin: 0 auto;
         }
-        
-        .progress-header {
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: color-mix(in srgb, var(--bg-base) 82%, transparent);
+            backdrop-filter: var(--card-blur);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-inner {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .progress-stats {
-            display: flex;
-            margin-bottom: 30px;
-        }
-        
-        .stat-box {
-            flex: 1;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            margin-right: 15px;
-        }
-        
-        .stat-box:last-child {
-            margin-right: 0;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            color: #666;
-        }
-        
-        .module-progress {
-            margin-bottom: 20px;
-        }
-        
-        .module-progress h4 {
-            margin-bottom: 10px;
-            display: flex;
             justify-content: space-between;
+            gap: 18px;
+            padding: 14px 0;
         }
-        
-        .module-progress h4 span {
-            color: #666;
-            font-weight: normal;
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        .progress-value {
-            height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 5px;
-        }
-        
-        .projects {
-            padding: 60px 0;
-            background-color: #f0f4f8;
-        }
-        
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .project-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .project-image {
-            height: 200px;
-            background-color: #ddd;
+
+        .brand {
             display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            background: var(--primary-gradient);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+        }
+
+        .brand-logo img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25));
+        }
+
+        .brand-text {
+            display: grid;
+            gap: 2px;
+        }
+
+        .brand-text small {
+            color: var(--muted-color);
+            font-weight: 500;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        nav.nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            font-size: 0.95rem;
+        }
+
+        nav.nav-links a {
+            opacity: 0.82;
+            transition: opacity var(--transition-base), transform var(--transition-base);
+        }
+
+        nav.nav-links a:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-actions .btn {
+            box-shadow: none;
+        }
+
+        .btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #666;
-            font-size: 1.2rem;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-color);
+            transition: transform var(--transition-base), box-shadow 0.3s ease, opacity 0.3s ease;
+            white-space: nowrap;
+            background: var(--ghost-bg);
+            color: var(--ghost-color);
         }
-        
-        .project-content {
-            padding: 20px;
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
-        
-        .project-content h3 {
-            margin-bottom: 10px;
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
         }
-        
-        .project-content p {
-            color: #666;
-            margin-bottom: 20px;
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: #0a0f1c;
+            border-color: transparent;
         }
-        
-        .tag {
-            display: inline-block;
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 5px 10px;
-            border-radius: 4px;
+
+        .btn-ghost {
+            background: var(--ghost-bg);
+            color: var(--ghost-color);
+            border-color: var(--border-color);
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-color);
+            border-color: var(--border-color);
+            box-shadow: none;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--chip-border);
+            background: var(--chip-bg);
+            color: var(--muted-color);
+            font-weight: 600;
             font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            letter-spacing: 0.2px;
         }
-        
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 40px 0;
-            text-align: center;
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #7a6bff;
+            box-shadow: 0 0 0 6px rgba(122, 107, 255, 0.18);
         }
-        
-        .footer-content {
-            max-width: 600px;
-            margin: 0 auto;
+
+        .hero {
+            padding: var(--section-spacing) 0 calc(var(--section-spacing) - 1rem);
         }
-        
-        .footer-content p {
-            margin-bottom: 20px;
+
+        .hero-grid {
+            display: grid;
+            gap: clamp(24px, 6vw, 60px);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            align-items: start;
         }
-        
-        .social-links {
-            margin-bottom: 20px;
+
+        .hero-main {
+            display: grid;
+            gap: 16px;
         }
-        
-        .social-links a {
-            color: white;
-            margin: 0 10px;
-            font-size: 1.2rem;
-            text-decoration: none;
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 3.6rem);
+            line-height: 1.05;
+            letter-spacing: -0.4px;
         }
-        
-        .copyright {
-            color: #bbb;
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            color: var(--muted-color);
+            font-size: 1.05rem;
+            max-width: 560px;
+        }
+
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hero-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+            backdrop-filter: var(--card-blur);
+            box-shadow: var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-card.hero-benefits {
+            gap: 14px;
+        }
+
+        .hero-card.hero-benefits .chip {
+            background: var(--chip-highlight);
+            border-color: transparent;
+            color: var(--text-color);
+        }
+
+        .hero-card .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--primary-gradient);
+            display: grid;
+            place-items: center;
+            color: #0a0f1c;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-card strong {
+            color: var(--text-color);
+        }
+
+        .hero-card .subtle,
+        .subtle {
+            color: var(--muted-color);
             font-size: 0.9rem;
         }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-            }
-            
-            nav ul {
-                margin-top: 20px;
-            }
-            
-            .feature {
-                flex: 0 0 100%;
-            }
-            
-            .progress-stats {
-                flex-direction: column;
-            }
-            
-            .stat-box {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
+
+        .section {
+            padding: var(--section-spacing) 0;
         }
-        
-        /* Progress Tracking System */
-        .progress-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-            vertical-align: middle;
+
+        .section-title {
+            display: grid;
+            gap: 8px;
+            text-align: center;
+            margin-bottom: clamp(2.4rem, 5vw, 3.4rem);
         }
-        
-        .not-started {
-            background-color: #e9ecef;
+
+        .section-title p {
+            color: var(--muted-color);
+            margin: 0 auto;
+            max-width: 640px;
         }
-        
-        .in-progress {
-            background-color: var(--warning-color);
+
+        .features {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         }
-        
-        .completed {
-            background-color: var(--success-color);
+
+        .feature {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            display: grid;
+            gap: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            backdrop-filter: var(--card-blur);
         }
-        
-        /* Modal */
+
+        .feature:hover {
+            transform: translateY(-4px);
+            border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+            box-shadow: var(--shadow-color);
+        }
+
+        .feature-icon {
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            color: #0a0f1c;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+        }
+
+        .feature p {
+            color: var(--muted-color);
+        }
+
+        .modules {
+            background: color-mix(in srgb, var(--surface) 25%, transparent);
+        }
+
+        .module-grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .module-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            display: grid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: var(--card-blur);
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-color);
+        }
+
+        .module-header {
+            padding: 18px 22px;
+            background: var(--module-header-bg);
+            font-weight: 700;
+        }
+
+        .module-content {
+            padding: 22px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .module-content p {
+            color: var(--muted-color);
+        }
+
+        .lesson-list {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .lesson-list li {
+            position: relative;
+            padding-left: 20px;
+            color: var(--muted-color);
+        }
+
+        .lesson-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--text-color);
+            opacity: 0.4;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .lesson-list a {
+            font-weight: 500;
+            transition: color var(--transition-base);
+        }
+
+        .lesson-list a:hover {
+            color: var(--text-color);
+        }
+
+        .progress-section .progress-tracker {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            display: grid;
+            gap: 24px;
+            backdrop-filter: var(--card-blur);
+            box-shadow: var(--shadow-color);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .progress-stats {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .stat-box {
+            background: color-mix(in srgb, var(--surface) 70%, transparent);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 16px;
+            text-align: center;
+            display: grid;
+            gap: 4px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: var(--muted-color);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+        }
+
+        .module-progress {
+            display: grid;
+            gap: 10px;
+        }
+
+        .module-progress h4 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .module-progress span {
+            color: var(--muted-color);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar {
+            height: 10px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--border-color) 40%, transparent);
+            overflow: hidden;
+        }
+
+        .progress-value {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: inherit;
+            transition: width 0.4s ease;
+        }
+
+        .projects .project-grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .project-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            display: grid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: var(--card-blur);
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-color);
+        }
+
+        .project-image {
+            position: relative;
+            padding-top: 62%;
+            overflow: hidden;
+            background: var(--project-image-overlay);
+        }
+
+        .project-image img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 22px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .project-content p {
+            color: var(--muted-color);
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 6px 10px;
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            color: var(--muted-color);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 26px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+
+        .footer-content a {
+            color: var(--muted-color);
+            font-weight: 600;
+        }
+
+        .footer-content a:hover {
+            color: var(--text-color);
+        }
+
+        .footer-blurb {
+            display: grid;
+            gap: 4px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .footer-meta {
+            margin-top: 12px;
+            text-align: center;
+        }
+
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            overflow: auto;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(6, 12, 26, 0.55);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
         }
-        
+
+        .modal.open {
+            display: flex;
+        }
+
         .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 30px;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
+            max-width: min(620px, 94vw);
+            background: var(--surface-strong);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 26px;
+            display: grid;
+            gap: 18px;
+            box-shadow: var(--shadow-color);
+            color: var(--text-color);
         }
-        
+
+        .modal-content ul {
+            margin: 0;
+            padding-left: 20px;
+            display: grid;
+            gap: 8px;
+            color: var(--muted-color);
+        }
+
         .close-modal {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
+            top: 18px;
+            right: 18px;
+            font-size: 1.4rem;
+            color: var(--muted-color);
             cursor: pointer;
-            color: #666;
         }
-        
-        .close-modal:hover {
-            color: var(--accent-color);
+
+        #gasergy-balance-display {
+            font-size: 0.85rem;
+            color: var(--muted-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
+
+        @media (max-width: 900px) {
+            header {
+                position: static;
+            }
+
+            .nav-inner {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-right {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                text-align: center;
+            }
+
+            .hero p {
+                margin: 0 auto;
+            }
+
+            .cta-row {
+                justify-content: center;
+            }
+
+            .hero-card .row {
+                justify-content: center;
+            }
+        }
+
+        /* Floating Launcher Button */
+    #chatLauncher {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 1000;
+      padding: 12px 18px;
+      background-color: #2563EB;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    /* Chat Container panel */
+    #chatContainer {
+      display: none; /* hidden initially */
+      position: fixed;
+      bottom: 80px; /* above the launcher button */
+      right: 16px;
+      width: 350px;
+      height: 500px;
+      max-width: 90%;
+      max-height: 80%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      z-index: 999;
+    }
+    /* Make the web component fill the container */
+    #chatContainer openai-chatkit {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
     </style>
-<link rel="stylesheet" href="assets/darkmode.css">
-<script defer src="assets/darkmode.js"></script>
+<link rel="stylesheet" href="/assets/darkmode.css">
+<script defer src="/assets/darkmode.js"></script>
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <div class="logo"><div class="logo"><a href="/" target="_blank" rel="noopener noreferrer"> <img src="assets/logo.png"  width="125" height="125" alt="HTML Master Logo" alt="main logo"> </a></div></div>
-           
-            <nav>
-  <ul>
-    <li><a href="ai_chat/index.php">AI Expert Chat</a></li>
-    <li><a href="#course-overview">Overview</a></li>
-    <li><a href="#modules">Modules</a></li>
-                        <!-- <li><a href="#progress">Progress</a></li> -->
-    <li><a href="#projects">Projects</a></li>
-    <?php if (isset($_SESSION['user_id'])): ?>
-            <li><a href="auth-system/backend-login-src/logout.php">Logout</a></li>
-    <?php else: ?>
-            <li><a href="auth-system/login.html">Login</a></li>
-            <li><a href="auth-system/register.html">Register</a></li>
-    <?php endif; ?>
+<button id="chatLauncher">Chat</button>
 
-  </ul>
-</nav>
+<div id="chatContainer">
+  <openai-chatkit id="my-chat"></openai-chatkit>
+</div>
+    <header>
+        <div class="container nav-inner">
+            <div class="brand">
+                <div class="brand-logo">
+                    <a href="/" target="_blank" rel="noopener noreferrer">
+                        <img src="/assets/logo.png" width="44" height="44" alt="HTML Master Logo">
+                    </a>
+                </div>
+                <div class="brand-text">
+                    <span>HTML Master</span>
+                    <small>Comprehensive HTML Course</small>
+                </div>
+            </div>
+            <div class="nav-right">
+                <nav class="nav-links">
+                    <a href="/ai_chat/index.php">AI Expert Chat</a>
+                    <a href="#course-overview">Overview</a>
+                    <a href="#modules">Modules</a>
+                    <a href="#projects">Projects</a>
+                </nav>
+                <div class="nav-actions">
+                    <span id="gasergy-balance-display" class="chip" aria-live="polite">⚡ <?php echo htmlspecialchars($gasergyBalance ?? '0'); ?> Gasergy</span>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a class="btn btn-ghost" href="/auth-system/backend-login-src/logout.php">Logout</a>
+                    <?php else: ?>
+                        <a class="btn btn-ghost" href="/auth-system/login.html">Login</a>
+                        <a class="btn btn-primary" href="/auth-system/register.html">Register</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </header>
     
     <section class="hero">
-        <div class="container">
-            <h1>Master HTML from Beginner to Advanced</h1>
-            <p>A comprehensive, interactive course designed to take you from the basics to advanced mastery of HTML. Learn through practical examples, interactive exercises, and real-world projects.</p>
-            <p>Need quick answers or guidance? Try our new <strong>AI Expert Chat</strong> for instant help with coding questions, examples, and more.</p>
-            <a href="#modules" class="btn">Start Learning</a>
-            <a href="#projects" class="btn btn-accent">View Projects</a>
-            <a href="ai_chat/index.php" class="btn btn-primary">AI Expert Chat</a>
-            <a href="gasergy/get.php" class="btn btn-primary">⚡ Get Gasergy</a>
+        <div class="container hero-grid">
+            <div class="hero-main">
+                <span class="chip"><span class="dot"></span> SRN-inspired learning experience</span>
+                <h1>Master HTML with a <span class="gradient-text">Software Robot Network</span> vibe</h1>
+                <p>A comprehensive, interactive course designed to take you from the basics to advanced mastery of HTML. Learn through practical examples, interactive exercises, and real-world projects with a polished, glassmorphism aesthetic.</p>
+                <p>Need quick answers or guidance? Launch the <strong>AI Expert Chat</strong> for instant help with coding questions, examples, and more.</p>
+                <div class="cta-row">
+                    <a href="#modules" class="btn btn-primary">Start Learning</a>
+                    <a href="#projects" class="btn btn-ghost">View Projects</a>
+                    <a href="/ai_chat/index.php" class="btn btn-outline">AI Expert Chat</a>
+                    <a href="/gasergy/get.php" class="btn btn-ghost">⚡ Get Gasergy</a>
+                </div>
+                <div class="hero-card hero-benefits">
+                    <div class="row">
+                        <span class="chip"><span class="dot"></span> Guided curriculum</span>
+                        <span class="chip">Interactive practice</span>
+                        <span class="chip">AI companion ready</span>
+                    </div>
+                    <div class="row subtle">Inspired by SRN’s polished network — fast, friendly, and ready for serious builders.</div>
+                </div>
+            </div>
+            <aside>
+                <div class="hero-card">
+                    <div class="row">
+                        <div class="avatar" aria-hidden="true">HM</div>
+                        <div>
+                            <strong>HTML Master</strong><br>
+                            <small class="subtle">Your markup co-pilot</small>
+                        </div>
+                    </div>
+                    <div class="row subtle">“Course + AI companion”</div>
+                    <div class="cta-row">
+                        <a class="btn btn-primary" href="/ai_chat/index.php">Chat with the tutor</a>
+                        <a class="btn btn-ghost" href="/gasergy/get.php">⚡ Gasergy credits</a>
+                    </div>
+                    <div class="row subtle">Stay in flow with curated lessons and quick answers whenever you need them.</div>
+                </div>
+            </aside>
         </div>
     </section>
     
-    <section id="course-overview" class="course-overview">
+    <section id="course-overview" class="section course-overview">
         <div class="container">
             <div class="section-title">
                 <h2>Course Overview</h2>
@@ -602,7 +951,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section>
     
-    <section id="modules" class="modules">
+    <section id="modules" class="section modules">
         <div class="container">
             <div class="section-title">
                 <h2>Course Modules</h2>
@@ -617,16 +966,16 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Learn the fundamental building blocks of HTML and create your first web pages.</p>
                         <ul class="lesson-list">
-                            <li><a href="basics/01_introduction.html">Introduction to HTML</a></li>
-                            <li><a href="basics/02_document_structure.html">HTML Document Structure</a></li>
-                            <li><a href="basics/03_text_elements.html">Text Elements</a></li>
-                            <li><a href="basics/04_links.html">Links and Navigation</a></li>
-                            <li><a href="basics/05_images.html">Images and Multimedia</a></li>
-                            <li><a href="basics/06_lists.html">Lists</a></li>
-                            <li><a href="basics/07_tables.html">Tables</a></li>
-                            <li><a href="basics/08_forms.html">Forms</a></li>
+                            <li><a href="/basics/01_introduction.html">Introduction to HTML</a></li>
+                            <li><a href="/basics/02_document_structure.html">HTML Document Structure</a></li>
+                            <li><a href="/basics/03_text_elements.html">Text Elements</a></li>
+                            <li><a href="/basics/04_links.html">Links and Navigation</a></li>
+                            <li><a href="/basics/05_images.html">Images and Multimedia</a></li>
+                            <li><a href="/basics/06_lists.html">Lists</a></li>
+                            <li><a href="/basics/07_tables.html">Tables</a></li>
+                            <li><a href="/basics/08_forms.html">Forms</a></li>
                         </ul>
-                        <a href="basics/01_introduction.html" class="btn">Start Module</a>
+                        <a href="/basics/01_introduction.html" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
                 
@@ -637,14 +986,14 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Expand your HTML knowledge with more advanced elements and techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="intermediate/01_semantic_elements.php">HTML5 Semantic Elements</a></li>
-                            <li><a href="intermediate/02_metadata.php">Metadata and Document Head</a></li>
-                            <li><a href="intermediate/03_accessibility.php">Accessibility Best Practices</a></li>
-                            <li><a href="intermediate/04_character_entities.php">Character Entities</a></li>
-                            <li><a href="intermediate/05_embedding_content.php">Embedding Content</a></li>
-                            <li><a href="intermediate/06_advanced_forms.php">Advanced Forms</a></li>
+                            <li><a href="/intermediate/01_semantic_elements.php">HTML5 Semantic Elements</a></li>
+                            <li><a href="/intermediate/02_metadata.php">Metadata and Document Head</a></li>
+                            <li><a href="/intermediate/03_accessibility.php">Accessibility Best Practices</a></li>
+                            <li><a href="/intermediate/04_character_entities.php">Character Entities</a></li>
+                            <li><a href="/intermediate/05_embedding_content.php">Embedding Content</a></li>
+                            <li><a href="/intermediate/06_advanced_forms.php">Advanced Forms</a></li>
                         </ul>
-                        <a href="intermediate/01_semantic_elements.php" class="btn">Start Module</a>
+                        <a href="/intermediate/01_semantic_elements.php" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
                 
@@ -655,14 +1004,14 @@ if (isset($_SESSION['user_id'])) {
                     <div class="module-content">
                         <p>Master advanced HTML concepts and modern web development techniques.</p>
                         <ul class="lesson-list">
-                            <li><a href="advanced/01_html5_apis.php">HTML5 APIs and Features</a></li>
-                            <li><a href="advanced/02_canvas_svg.php">Canvas and SVG</a></li>
-                            <li><a href="advanced/03_web_components.php">Web Components</a></li>
-                            <li><a href="advanced/04_microdata.php">Microdata and Structured Data</a></li>
-                            <li><a href="advanced/05_performance_optimization.php">Performance Optimization</a></li>
-                            <li><a href="advanced/06_integration.php">Integration with CSS and JavaScript</a></li>
+                            <li><a href="/advanced/01_html5_apis.php">HTML5 APIs and Features</a></li>
+                            <li><a href="/advanced/02_canvas_svg.php">Canvas and SVG</a></li>
+                            <li><a href="/advanced/03_web_components.php">Web Components</a></li>
+                            <li><a href="/advanced/04_microdata.php">Microdata and Structured Data</a></li>
+                            <li><a href="/advanced/05_performance_optimization.php">Performance Optimization</a></li>
+                            <li><a href="/advanced/06_integration.php">Integration with CSS and JavaScript</a></li>
                         </ul>
-                        <a href="advanced/01_html5_apis.php" class="btn">Start Module</a>
+                        <a href="/advanced/01_html5_apis.php" class="btn btn-outline">Start Module</a>
                     </div>
                 </div>
             </div>
@@ -679,7 +1028,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="progress-tracker">
                 <div class="progress-header">
                     <h3>Course Progress</h3>
-                    <button class="btn" onclick="resetProgress()">Reset Progress</button>
+                    <button class="btn btn-outline" onclick="resetProgress()">Reset Progress</button>
                 </div>
                 
                 <div class="progress-stats">
@@ -723,7 +1072,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section> -->
     
-    <section id="projects" class="projects">
+    <section id="projects" class="section projects">
         <div class="container">
             <div class="section-title">
                 <h2>Practice Projects</h2>
@@ -733,7 +1082,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="project-grid">
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/ProfileDesign.png" alt="Personal Portfolio" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/assets/images/ProfileDesign.png" alt="Personal Portfolio">
                     </div>
                     <div class="project-content">
                         <h3>Personal Portfolio</h3>
@@ -743,13 +1092,13 @@ if (isset($_SESSION['user_id'])) {
                             <span class="tag">Semantic HTML</span>
                             <span class="tag">Responsive Design</span>
                         </div>
-                        <button class="btn" onclick="openProjectModal('portfolio')">View Project</button>
+                        <button class="btn btn-outline" onclick="openProjectModal('portfolio')">View Project</button>
                     </div>
                 </div>
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/LayoutDesign.png" alt="Blog Template" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/assets/images/LayoutDesign.png" alt="Blog Template">
                     </div>
                     <div class="project-content">
                         <h3>Blog Template</h3>
@@ -759,13 +1108,13 @@ if (isset($_SESSION['user_id'])) {
                             <span class="tag">Accessibility</span>
                             <span class="tag">Forms</span>
                         </div>
-                        <button class="btn" onclick="openProjectModal('blog')">View Project</button>
+                        <button class="btn btn-outline" onclick="openProjectModal('blog')">View Project</button>
                     </div>
                 </div>
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/E-commerce.png" alt="E-commerce Product Page" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/assets/images/E-commerce.png" alt="E-commerce Product Page">
                     </div>
                     <div class="project-content">
                         <h3>E-commerce Product Page</h3>
@@ -775,13 +1124,13 @@ if (isset($_SESSION['user_id'])) {
                             <span class="tag">HTML5 APIs</span>
                             <span class="tag">Forms</span>
                         </div>
-                        <button class="btn" onclick="openProjectModal('ecommerce')">View Project</button>
+                        <button class="btn btn-outline" onclick="openProjectModal('ecommerce')">View Project</button>
                     </div>
                 </div>
                 
                 <div class="project-card">
                     <div class="project-image">
-                        <img src="assets/images/Dashboard.png" alt="Interactive Dashboard" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/assets/images/Dashboard.png" alt="Interactive Dashboard">
                     </div>
                     <div class="project-content">
                         <h3>Interactive Dashboard</h3>
@@ -791,7 +1140,7 @@ if (isset($_SESSION['user_id'])) {
                             <span class="tag">SVG</span>
                             <span class="tag">HTML5 APIs</span>
                         </div>
-                        <button class="btn" onclick="openProjectModal('dashboard')">View Project</button>
+                        <button class="btn btn-outline" onclick="openProjectModal('dashboard')">View Project</button>
                     </div>
                 </div>
             </div>
@@ -801,16 +1150,17 @@ if (isset($_SESSION['user_id'])) {
     <footer>
         <div class="container">
             <div class="footer-content">
-                <p>Master HTML with our comprehensive, interactive course designed for beginners to advanced learners.</p>
-                <div class="social-links">
-                    <!-- <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a> -->
+                <div class="footer-blurb">
+                    <strong>HTML Master</strong>
+                    <span class="subtle">SRN-inspired curriculum and AI companion for modern builders.</span>
                 </div>
-                <div class="copyright">
-                    &copy; 2025 HTMLMaster Course. All rights reserved.
+                <div class="footer-links">
+                    <a href="/ai_chat/index.php">AI Expert Chat</a>
+                    <a href="/gasergy/get.php">Gasergy</a>
+                    <a href="/auth-system/login.html">Login</a>
                 </div>
             </div>
+            <div class="footer-meta subtle">© <?php echo date('Y'); ?> HTML Master Course. All rights reserved.</div>
         </div>
     </footer>
     
@@ -837,7 +1187,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Accessibility best practices</li>
                 <li>Image optimization</li>
             </ul>
-            <a href="projects/portfolio_template.html" class="btn" download>Download Project Template</a>
+            <a href="/projects/portfolio_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -863,7 +1213,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Metadata and SEO basics</li>
                 <li>Content organization</li>
             </ul>
-            <a href="projects/blog_template.html" class="btn" download>Download Project Template</a>
+            <a href="/projects/blog_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -889,7 +1239,7 @@ if (isset($_SESSION['user_id'])) {
                 <li>Semantic product information</li>
                 <li>Responsive design for e-commerce</li>
             </ul>
-            <a href="projects/ecommerce_template.html" class="btn" download>Download Project Template</a>
+            <a href="/projects/ecommerce_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
@@ -915,93 +1265,69 @@ if (isset($_SESSION['user_id'])) {
                 <li>Interactive HTML elements</li>
                 <li>Table structure and accessibility</li>
             </ul>
-            <a href="projects/dashboard_template.html" class="btn" download>Download Project Template</a>
+            <a href="/projects/dashboard_template.html" class="btn btn-primary" download>Download Project Template</a>
         </div>
     </div>
     
     <!-- Removed legacy progress tracking and modal functions -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-   
+    <link href="/assets/chatkit.css" rel="stylesheet" />
+
     <style>
-        /* Change primary color */
         :root {
-      
+            --chatkit-color-primary: #00C897;
+            --chatkit-color-primary-50: #00b089;
+            --chatkit-color-primary-100: #009777;
+            --chatkit-color-secondary: #00796B;
+            --chatkit-color-secondary-50: #00695C;
+            --chatkit-surface: #f0f8ff;
+            --chatkit-text-dark: #1a1a1a;
+            --chatkit-message-bot-background: #ffffff;
+            --chatkit-message-bot-color: #222;
+            --chatkit-message-user-background: var(--chatkit-color-secondary);
+            --chatkit-message-user-color: #ffffff;
+            --chatkit-toggle-background: var(--chatkit-color-primary);
+            --chatkit-toggle-hover-background: var(--chatkit-color-primary-50);
+            --chatkit-toggle-active-background: var(--chatkit-color-primary-100);
+            --chatkit-font-family: 'Segoe UI', sans-serif;
 
-
-  /* 🔧 Override default CSS variables defined by n8n chat */
-  :root {
-    --chat--color-primary: #00C897; /* Accent color for toggle button, links, etc */
-    --chat--color-primary-shade-50: #00b089;
-    --chat--color-primary-shade-100: #009777;
-    --chat--color-secondary: #00796B; /* User message background */
-    --chat--color-secondary-shade-50: #00695C;
-    --chat--color-light: #f0f8ff;     /* Chat background */
-    --chat--color-dark: #1a1a1a;      /* Bot text color */
-    --chat--message--bot--background: #ffffff;
-    --chat--message--bot--color: #222;
-    --chat--message--user--background: var(--chat--color-secondary);
-    --chat--message--user--color: white;
-    --chat--toggle--background: var(--chat--color-primary);
-    --chat--toggle--hover--background: var(--chat--color-primary-shade-50);
-    --chat--toggle--active--background: var(--chat--color-primary-shade-100);
-  }
-
-  /* 🎨 Optional: Style message bubbles directly */
-  .n8n-chat .chat-message.chat-message-from-bot {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    border: 1px solid #e0e0e0;
-  }
-
-  .n8n-chat .chat-message.chat-message-from-user {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    background: linear-gradient(135deg, #005dc8, #2c3e50);
-  }
-
-  /* 📝 Chat input styling */
-  .n8n-chat textarea {
-    background-color: #ffffff;
-    border: 1px solid #0064c8;
-    color: hsl(0, 0%, 13%);
-  }
-
-  .n8n-chat .chat-window-toggle {
-    background-color: #005dc8;
-  }
-
-  .n8n-chat .chat-input-send-button {
-    background-color: #005dc8;
-    color: white;
-  }
-
-  .n8n-chat .chat-header {
-    background-color: #2c3e50;
-    color: white;
-  }
-
-  .n8n-chat .chat-window-wrapper .chat-window-toggle {
-    background: lightblue !important;
-    color: white;
-  }
+            /* Fallbacks for legacy variables until ChatKit adopts the new tokens */
+            --chat--color-primary: var(--chatkit-color-primary);
+            --chat--color-primary-shade-50: var(--chatkit-color-primary-50);
+            --chat--color-primary-shade-100: var(--chatkit-color-primary-100);
+            --chat--color-secondary: var(--chatkit-color-secondary);
+            --chat--color-secondary-shade-50: var(--chatkit-color-secondary-50);
+            --chat--color-light: var(--chatkit-surface);
+            --chat--color-dark: var(--chatkit-text-dark);
+            --chat--message--bot--background: var(--chatkit-message-bot-background);
+            --chat--message--bot--color: var(--chatkit-message-bot-color);
+            --chat--message--user--background: var(--chatkit-message-user-background);
+            --chat--message--user--color: var(--chatkit-message-user-color);
+            --chat--toggle--background: var(--chatkit-toggle-background);
+            --chat--toggle--hover--background: var(--chatkit-toggle-hover-background);
+            --chat--toggle--active--background: var(--chatkit-toggle-active-background);
+            --chat--font-family: var(--chatkit-font-family);
         }
 
-   
-    </style>      
-   
-   <div id="n8n-chat"></div>
-   <!-- Removed old n8n-chat module script -->
-    <script src="assets/js/main-scripts.js"></script>
-    <script type="module" src="assets/js/chat-logic.js"></script>
+        #chatkit-root {
+            font-family: var(--chatkit-font-family);
+        }
+    </style>
+
+   <div id="chatkit-root" class="chatkit-container"></div>
+    <script src="/assets/js/main-scripts.js"></script>
+    <script type="module" src="/assets/js/chat-logic.js"></script>
     <script type="module">
-      import { initializeN8NChat } from './assets/js/chat-logic.js';
+      import { initializeChatKit } from '/assets/js/chat-logic.js';
+
+      const chatkitEnvConfig = <?php echo json_encode($chatkitConfig); ?>;
 
       document.addEventListener('DOMContentLoaded', () => {
         // Initialize main scripts (like progress tracking) if it has its own init function,
         // or ensure it runs on DOMContentLoaded from within main-scripts.js itself.
         // For chat:
-        initializeN8NChat({
-          webhookUrl: 'https://palmtreesai.com/n8n/webhook/776d8016-6e3b-451e-bc5f-f5d1d768de73/chat',
+        initializeChatKit({
+          webhookUrl: chatkitEnvConfig.webhookUrl,
+          headers: chatkitEnvConfig.openAiApiKey ? { 'x-openai-api-key': chatkitEnvConfig.openAiApiKey } : undefined,
           initialMessages: [
             'Welcome to the AI Master HTML Assistant!',
             'Feel free to ask any questions about HTML.',
@@ -1015,18 +1341,19 @@ if (isset($_SESSION['user_id'])) {
               inputPlaceholder: 'Type your question...',
             },
           },
-          target: '#n8n-chat', // Target for index.php
+          target: '#chatkit-root', // Target for index.php
           mode: 'popup', // Default mode
           autoOpen: false,
           hideToggle: false,
           gasergy: {
-            fetchPath: 'gasergy/decrease_gasergy.php', // Path for index.php
+            fetchPath: '/gasergy/decrease_gasergy.php', // Path for index.php
             balanceDisplaySelector: '#gasergy-balance-display', // Selector for balance display
-            refillPath: 'gasergy/get.php',
-            balancePath: 'gasergy/get_balance.php'
+            refillPath: '/gasergy/get.php',
+            balancePath: '/gasergy/get_balance.php'
           }
         });
       });
     </script>
+    <script src="./main.js" defer></script>
 </body>
 </html>

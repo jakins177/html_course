@@ -72,7 +72,7 @@ if (!isset($_SESSION['user_id'])) {
 <body>
 
   <h1>Get Gasergy ⚡</h1>
-  <p><a href="manage_subscription.php">Manage Subscription</a></p>
+  <p><a href="https://billing.stripe.com/p/login/test_00wbJ12SW34q2cK1O10sU00" target="_blank" rel="noopener">Manage Subscription</a></p>
   <p>Select your plan:</p>
 
   <div class="pricing-grid">
@@ -108,7 +108,7 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <p class="enterprise-note">Need &gt;10 000 Gasergy per month?
-    <a href="mailto:sales@example.com">Contact sales</a>
+    <a href="mailto:contact@palmtreesdigital.com">Contact sales</a>
     or <a href="#" id="show-enterprise">self-serve Enterprise</a>
   </p>
 
